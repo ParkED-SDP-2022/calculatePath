@@ -1,19 +1,4 @@
-from geojson import FeatureCollection, Feature, LineString, Point
-import geojson
-import os
-#class is representation of boundary and known obstacles in the park
-class Boundaries:
-
-    def __init__(self):
-        self.boundaryCoordinates = []  # list of points
-        self.obstacles = []  # list of points
-        self.readBoundaries()
-
-    def readBoundaries(self):
-        with open('Maps/testMap.geojson') as file:
-            gj = geojson.load(file)
-            print(gj)
-            self.boundaryCoordinates = gj['features'][0]
+from Boundaries import Boundaries
 
 
 # Press the green button in the gutter to run the script.

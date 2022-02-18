@@ -1,0 +1,3 @@
+https://turfpy.readthedocs.io/en/stable/misc/line_intersect.html?highlight=intersect
+
+https://turfpy.readthedocs.io/en/stable/measurements/point_in_polygon.html?highlight=point%20in%20polygon

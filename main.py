@@ -5,8 +5,8 @@ import os
 class Boundaries:
 
     def __init__(self):
-        self.boundaryCoordinates = []  # list of points
-        self.obstacles = []  # list of points
+        self.boundaryCoordinates = 0  # list of points
+        self.obstacles = 0
         self.readBoundaries()
 
     def readBoundaries(self):

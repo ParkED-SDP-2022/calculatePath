@@ -1,1 +1,11 @@
+certifi==2020.6.20
 geojson==2.5.0
+mkl-fft==1.3.1
+mkl-random @ file:///C:/ci_310/mkl_random_1643050563308/work
+mkl-service==2.4.0
+numpy @ file:///C:/ci_310/numpy_and_numpy_base_1643798589088/work
+scipy @ file:///C:/ci_310/scipy_1642247684282/work
+Shapely==1.8.0
+six @ file:///tmp/build/80754af9/six_1644875935023/work
+turfpy @ file:///home/conda/feedstock_root/build_artifacts/turfpy_1627125985977/work
+wincertstore==0.2

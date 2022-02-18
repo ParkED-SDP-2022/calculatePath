@@ -13,6 +13,7 @@ class Graph():
         
         # add the edges to the node
         def addEdges():
+            #edge knows its own cost :) + has a list of nodes?
             ...
             
         #allow nodes to be compared with A* searchs
@@ -45,4 +46,6 @@ class Graph():
         ...
     
     
-    
+    def GetPath(self, start, end, constraint):
+        # use A* search
+        ...

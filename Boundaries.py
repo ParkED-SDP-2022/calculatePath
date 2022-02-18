@@ -11,8 +11,15 @@ class Boundaries:
         self.obstacles = 0
         self.readBoundaries()
 
-    def readBoundaries(self):
-        with open('Maps/testMap.geojson') as file:
+    def readBoundaries(self, fname):
+        with open(fname) as file:
             gj = geojson.load(file)
             print(gj)
             self.boundaryCoordinates = gj['features'][0]
+            
+    def generatePoints():
+        #at least length of robot
+        ...
+        
+    def crossesBoundaries():
+        ...

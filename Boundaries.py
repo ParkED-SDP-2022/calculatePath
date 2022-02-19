@@ -16,3 +16,6 @@ class Boundaries:
             gj = geojson.load(file)
             print(gj)
             self.boundaryCoordinates = gj['features'][0]
+
+
+#todo isIntersecting, geojson polygon, generate grid

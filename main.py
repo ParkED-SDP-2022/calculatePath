@@ -16,5 +16,7 @@ if __name__ == '__main__':
           55.94126327057947) #false
     l4 = LongLat(-3.197418451309204,
           55.94164181079011) #false
-    print(G.is_valid_point(l4))
+    l5 = LongLat( -3.195412158966064,
+          55.9416237851497) #outside boundary
+    print(G.is_intersecting(l4, l5))
 

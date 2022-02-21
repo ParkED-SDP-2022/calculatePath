@@ -1,6 +1,8 @@
 from geojson import FeatureCollection, Feature, LineString, Point
 import geojson
 from turfpy.measurement import boolean_point_in_polygon
+
+from turfpy.misc import line_intersect
 import copy
 import long_lat
 
@@ -43,8 +45,10 @@ class Boundaries:
 
 
     # method checks if line made from two longlat points intersects any boundary or obstacle
-    def isIntersecting(self, longLat1, longLat2):
-        lineString = longLat1.to_LineString(longLat2)
+    def is_intersecting(self, longLat1, longLat2):
+        linestring = longLat1.to_LineString(longLat2)
+        print(line_intersect(linestring, self.boundary_linestring))
+
 
 
 

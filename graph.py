@@ -1,28 +1,44 @@
 
 
-class Graph():
+class Graph:
     
-    class Node():
+    class LongLat:
         
-        def __init__(self, LongLat) -> None:
+        def __init__(self, long, lat):
+            self.Long = long
+            self.Lat = lat
+    
+    
+    class Node:
+        
+        def __init__(self, LongLat):
             self.LongLat = LongLat
-            self.edges
-            self.parent
-            self.g
-            self.f
+            self.edges = []
+            self.parent = None
+            self.g = float('inf')
+            self.f = float('inf')
         
-        # add the edges to the node
-        def addEdges():
-            #edge knows its own cost :) + has a list of nodes?
-            ...
+        
+        # add the edge to the node
+        def addEdge(self, e):
+            self.edges.append(e)
             
-        #allow nodes to be compared with A* searchs
+        # allow nodes to be compared with A* searchs
         def compare():
             ...
         
+        
+    class Edge:
+        
+        def __init__(self, nodeA, nodeB):
+            self.start = nodeA
+            self.end = nodeB
+            #TODO: implement cost calculation? 
+            self.cost = calculateCost(nodeA, nodeB)
+       
     
     #initialise a graph object
-    def __init__(self, boundaries) -> None:
+    def __init__(self, boundaries):
         
         #boundaries of the park 
         self.Boundaries = boundaries
@@ -37,13 +53,19 @@ class Graph():
     # using self.boundaries object to 
     # generate the grid longlats
     def initializeNodes(self):
-        ...
+        return self.Boundaries.getNodes()
         
     # for all node, check if an edge exists between all other nodes
     # by calling bounary method to check intersection 
     # add the edges to a list in the node object 
     def initializeEdges(self):
-        ...
+        for nodeA in self.nodes:
+            for nodeB in self.nodes:
+                #TODO: not repeate calculations of existing edges
+                #TODO: what format to validate? node, edge, longlats?
+                if self.Boundaries.isValidPath(nodeA.LongLat, nodeB.LongLat):
+                    nodeA.addEdge(Edge(nodeA, nodeB))
+                    
     
     
     def GetPath(self, start, end, constraint):

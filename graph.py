@@ -1,4 +1,6 @@
 from long_lat import LongLat
+from long_lat import distance
+import heapq
 
 class Graph:    
     
@@ -67,9 +69,31 @@ class Graph:
         self.ignoreEdgeMatrix.extend(self.constraintToEdges(constraint))
         
         #Add beginning and end as nodes to the graph
-        self.addStartEnd(start, end)
+        startNode, goalNode = self.addStartEnd(start, end)
         
-        ...
+        toVisit = []        
+        heapq.heappush(toVisit, startNode)
+        result = None
+        
+        while len(toVisit) > 0:
+            
+            currentNode = heapq.heappop(toVisit)            
+            for edge in currentNode.edges:
+                child = edge.end #TODO: make sure to use the right end of the edge here
+                if child == goalNode:
+                    child.parent = currentNode
+                    result = child
+                    break 
+                else:
+                    temp_g = edge.cost
+                    temp_f = temp_g + distance(child.longLat, goalNode.longLat)
+                    if child.f > temp_f:
+                        child.parent = currentNode
+                        child.g = temp_g
+                        child.f = temp_f
+                        if child not in toVisit:
+                            heapq.heappush(child)
+            ...
         
         
         # remove temporary modifications to graph
@@ -90,12 +114,16 @@ class Graph:
         
         startNode = self.Node(start)
         endNode = self.Node(end)
+        endNode.g = 0
+        endNode.f =0 
         
         for nodeA in [startNode, endNode]:
             for nodeB in self.nodes:
                 if self.Boundaries.isValidEdge(nodeA.longLat, nodeB.longLat):
                     nodeA.addEdge(self.Edge(nodeA, nodeB))
                     nodeB.addEdge(self.Edge(nodeB, nodeA)) #TODO: ensure no repeated edges occur
+                    
+        return startNode, endNode
           
     # Once a search has been completed, reset all class variables           
     def flush(self, start, end, constraint):

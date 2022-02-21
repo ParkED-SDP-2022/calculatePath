@@ -27,4 +27,7 @@ class LongLat:
         y2 = longLat.lat
 
         return LineString([(x1, y1), (x2, y2)])
+    
+    def __eq__(self, other):
+        return self.long == other.long and self.lat == other.lat
 

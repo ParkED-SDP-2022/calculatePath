@@ -3,6 +3,7 @@ import geojson
 from turfpy.measurement import boolean_point_in_polygon
 import copy
 import long_lat
+from typing import List
 
 
 # class is representation of boundary and known obstacles in the park
@@ -47,8 +48,11 @@ class Boundaries:
         lineString = longLat1.to_LineString(longLat2)
 
 
+    def isValidEdge(self, longLat1, longLat2):
+        ...
 
-    def generatePoints():
+
+    def generatePoints() -> List[long_lat.LongLat]:
         #at least length of robot
         ...
         

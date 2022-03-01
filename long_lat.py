@@ -30,4 +30,7 @@ class LongLat:
     
     def __eq__(self, other):
         return self.long == other.long and self.lat == other.lat
+    
+    def __str__(self):
+        return ("(" + str(self.long) + "," + str(self.lat) + ")")
 

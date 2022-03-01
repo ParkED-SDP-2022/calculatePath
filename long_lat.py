@@ -1,6 +1,5 @@
 import math
-from geojson import Point, LineString
-
+from shapely.geometry import Point, LineString
 class LongLat:
 
     def __init__(self, long, lat):

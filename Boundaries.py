@@ -1,60 +1,108 @@
-from geojson import FeatureCollection, Feature, LineString, Point
-import geojson
-from turfpy.measurement import boolean_point_in_polygon
+import json
+from shapely.geometry import Point, Polygon, LineString, shape, MultiPolygon
 import copy
-import long_lat
+from long_lat import LongLat
 from typing import List
-
+import math
+import matplotlib.pyplot as plt
 
 # class is representation of boundary and known obstacles in the park
 class Boundaries:
 
     def __init__(self, fname):
+        # the more accurate size is = 0.0000027027 but using other value for dev
+        self.robot_size_in_coords = 0.00015
 
-        gj = self.read_file(fname)
-        self.boundary_polygon = gj['features'][0]   # polygon
-        self.obstacle_polygons = gj['features'][1:]  # list of polygons
-        self.boundary_linestring = self.polygon_to_linestring(self.boundary_polygon)
-        self.obstacle_linestring = [self.polygon_to_linestring(polygon) for polygon in self.obstacle_polygons]
+        # read file as shapely.geometry.MultiPolygon object
+        multi_polygon = self.read_file(fname)
 
+        # 0th polygon is the boundary, all of the rest are obstacles
+        self.boundary_polygon = multi_polygon.geoms[0]
+        self.obstacle_polygon = multi_polygon.geoms[1:]
+
+        # create buffer zones
+        # a negative distance (first argument in buffer()) represents erosion which is used for the boundary
+        self.boundary_buffer = self.boundary_polygon.buffer(-self.robot_size_in_coords/2, single_sided=False)
+
+        # positive distance is dilation which is used for each obstacle
+        self.obstacle_buffer = MultiPolygon([obstacle.buffer(self.robot_size_in_coords/2, single_sided=False) for obstacle in self.obstacle_polygon.geoms])
+
+        # plot boundaries and buffers
+        self.plot_polygon(self.boundary_buffer)
+        self.plot_polygon(self.boundary_polygon)
+        self.plot_polygons(self.obstacle_polygon)
+        self.plot_polygons(self.obstacle_buffer)
+
+        self.grid = self.generate_grid()
+
+
+    def plot_polygons(self, polygons):
+        for poly in polygons.geoms:
+            self.plot_polygon(poly)
+
+    def plot_polygon(self, polygon):
+        plt.plot(*polygon.exterior.xy)
+
+    def show_plot(self):
+        plt.show()
+
+    # method reads geojson file and returns a shapely.geometry.MultiPolygon object
     def read_file(self, fname):
         with open(fname) as file:
-            gj = geojson.load(file)
-            return gj
-
-    def polygon_to_linestring(self, polygon):
-        linestring = copy.deepcopy(polygon)
-        linestring['geometry']['type'] = 'LineString'
-        linestring['geometry']['coordinates'] = linestring['geometry']['coordinates'][0]
-        return linestring
-
-#todo isIntersecting, geojson polygon, generate grid
+            features = (json.load(file)["features"])
+            multi_polygon = MultiPolygon([shape(feature["geometry"]) for feature in features])
+            return multi_polygon
 
     # method returns true iff point is in the boundary and in none of the obstacles
-    def is_valid_point(self, longLat):
-        point = longLat.to_point()
-        return boolean_point_in_polygon(point, self.boundary_polygon) and\
-            not(self.point_in_polygons(self.obstacle_polygons, point))
 
+    def is_valid_point_new(self, longLat):
+        point = longLat.to_point()
+        safely_in_boundary = self.boundary_buffer.contains(point)
+        not_touching_obstacle = not(self.point_in_polygons(self.obstacle_buffer, point))
+        return safely_in_boundary and not_touching_obstacle
+
+    # iterates over multiple polygons, returns true if the given point is contained in any of them
     def point_in_polygons(self, polygons, point):
-        for poly in polygons:
-            if boolean_point_in_polygon(point, poly):
+        for poly in polygons.geoms:
+            if poly.contains(point):
                 return True
         return False
 
+    # checks if a line made from two longlat points crosses the border of the boundary or any obstacle
+    def is_intersecting(self, longLat1, longLat2):
+        linestring = longLat1.to_LineString(longLat2)
+        return linestring.crosses(self.boundary_buffer) or linestring.crosses(self.obstacle_buffer)
 
-    # method checks if line made from two longlat points intersects any boundary or obstacle
-    def isIntersecting(self, longLat1, longLat2):
-        lineString = longLat1.to_LineString(longLat2)
+    def is_valid_edge(self, longLat1, longLat2):
+        return not(self.is_intersecting(longLat1, longLat2))
 
+    # generates a 2d array of LongLats/int. The value -999 indicates that the point is not in a valid position
+    def generate_grid(self):
+        x1_bound = self.boundary_polygon.bounds[0]
+        y1_bound = self.boundary_polygon.bounds[1]
+        x2_bound = self.boundary_polygon.bounds[2]
+        y2_bound = self.boundary_polygon.bounds[3]
 
-    def isValidEdge(self, longLat1, longLat2):
-        ...
+        # init width and height of the array
+        width = math.floor((x2_bound - x1_bound)/self.robot_size_in_coords)
+        height = math.floor((y2_bound - y1_bound)/self.robot_size_in_coords)
 
+        x = x1_bound
+        y = y2_bound
 
-    def generatePoints() -> List[long_lat.LongLat]:
-        #at least length of robot
-        ...
-        
-    def crossesBoundaries():
-        ...
+        grid = [[-999 for j in range(width)] for i in range(height)]  # init array
+
+        # adds LongLat point to the grid if it is a valid point
+        for i in range(height):
+            if i != 0:
+                y = y - self.robot_size_in_coords
+            x = x1_bound
+            for j in range(width):
+                if j != 0:
+                    x = x + self.robot_size_in_coords
+                point = LongLat(x,y)
+                if self.is_valid_point_new(point):
+                    grid[i][j] = LongLat(x, y)
+                    plt.scatter(x,y)
+        return grid
+

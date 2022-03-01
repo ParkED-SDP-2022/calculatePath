@@ -1,4 +1,3 @@
-from lib2to3.pytree import Node
 from long_lat import LongLat
 import heapq
 

@@ -113,8 +113,8 @@ class Graph:
         
     
     # given a start, end and a constraing, use A* search to find the optimum path through the graph
-    def GetPath(self, start : LongLat, end : LongLat, constraint=[]):
-        self.applyConstraint(constraint)
+    def GetPath(self, start : LongLat, end : LongLat, constraints=[] ):
+        self.applyConstraint(constraints) # constraints is list of pairs of longLats between wich we cannot travel
         
         #Add beginning and end as nodes to the graph
         startNode, goalNode = self.addStartEnd(start, end)
@@ -123,7 +123,7 @@ class Graph:
         result = self.aStar(startNode, goalNode)
         
         # remove temporary modifications to graph
-        self.flush(startNode, goalNode, constraint) # TODO: can I flush before constructing the path? probably not...
+        self.flush(startNode, goalNode, constraints) # TODO: can I flush before constructing the path? probably not...
         return(self.reconstructPath(result))
     
     def aStar(self, startNode, goalNode):
@@ -161,12 +161,15 @@ class Graph:
         # If no route is found return none                      
         return None
     
-    def applyConstraint(self, c):
-        # c = [(LongLat a, LongLat b)...]
-        self.ignoreEdgeMatrix.extend(self.constraintToEdges(c))
+    def applyConstraint(self, cs):
+        # cs = [(LongLat a, LongLat b)...]
+        self.ignoreEdgeMatrix.extend(self.constraintToEdges(cs))
         
-    def constraintToEdges(self, constraint):
-        return constraint
+    def constraintToEdges(self, cs):
+        es = []
+        for (l1, l2) in cs:
+            es.append(self.Edge(l1, l2))
+        return es
         
     def isIgnoredEdge(self, e):
         # should this be a matrix for fast lookup? rn its a list

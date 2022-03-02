@@ -3,6 +3,7 @@ from graph import *
 
 import unittest
 
+#TODO: test!
 class DummyBoundary:
     
     robot_size_in_coords = 2.0
@@ -18,12 +19,12 @@ class DummyBoundary:
     
 class TestGraph(unittest.TestCase):
     
-    # def test_SearchNode_eq(self):
-    #     a = Graph.SearchNode(LongLat(0,3), 0, 3)
-    #     b = Graph.SearchNode(LongLat(1,1), 1, 1)
-    #     c = Graph.SearchNode(LongLat(0,3), 0, 3)
-    #     self.assertEqual(a==b, False)
-    #     self.assertEqual(a==c, True)
+    def test_SearchNode_eq(self):
+        a = Graph.SearchNode(LongLat(0,3), 0, 3)
+        b = Graph.SearchNode(LongLat(1,1), 1, 1)
+        c = Graph.SearchNode(LongLat(0,3), 0, 3)
+        self.assertEqual(a==b, False)
+        self.assertEqual(a==c, True)
     
     def test_GetPath(self):
         graph = Graph(DummyBoundary())

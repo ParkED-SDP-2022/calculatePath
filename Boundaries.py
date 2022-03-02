@@ -11,7 +11,7 @@ class Boundaries:
 
     def __init__(self, fname):
         # the more accurate size is = 0.0000027027 but using other value for dev
-        self.robot_size_in_coords = 0.00015
+        self.robot_size_in_coords = 0.0002
         self.origin = None
 
         # read file as shapely.geometry.MultiPolygon object
@@ -29,20 +29,23 @@ class Boundaries:
         self.obstacle_buffer = MultiPolygon([obstacle.buffer(self.robot_size_in_coords/2, single_sided=False) for obstacle in self.obstacle_polygon.geoms])
 
         # plot boundaries and buffers
-        self.plot_polygon(self.boundary_buffer)
-        self.plot_polygon(self.boundary_polygon)
-        self.plot_polygons(self.obstacle_polygon)
-        self.plot_polygons(self.obstacle_buffer)
+        self.dot_color = '#6ca85e'
+        self.buffer_color = '#9a9ca1'
+        self.boundary_color = '#373d3a'
+        self.plot_polygon(self.boundary_buffer, self.buffer_color, 'dashed')
+        self.plot_polygon(self.boundary_polygon, self.boundary_color, 'solid')
+        self.plot_polygons(self.obstacle_polygon, self.boundary_color, 'solid')
+        self.plot_polygons(self.obstacle_buffer, self.buffer_color, 'dashed')
 
         self.grid = self.generate_grid()
 
 
-    def plot_polygons(self, polygons):
+    def plot_polygons(self, polygons, color, linestyle):
         for poly in polygons.geoms:
-            self.plot_polygon(poly)
+            self.plot_polygon(poly, color, linestyle)
 
-    def plot_polygon(self, polygon):
-        plt.plot(*polygon.exterior.xy)
+    def plot_polygon(self, polygon, color, linestyle):
+        plt.plot(*polygon.exterior.xy, color=color, linestyle=linestyle)
 
     def show_plot(self):
         plt.show()
@@ -106,6 +109,7 @@ class Boundaries:
                 point = LongLat(x,y)
                 if self.is_valid_point_new(point):
                     grid[i][j] = LongLat(x, y)
-                    plt.scatter(x,y)
+                    plt.scatter(x,y, color=self.dot_color)
+        print(grid)
         return grid
 

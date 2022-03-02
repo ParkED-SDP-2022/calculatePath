@@ -1,9 +1,14 @@
 #! /usr/bin/env python
 
 from ast import Global
+from long_lat import LongLat
 import rospy
 import actionlib
 from parked_custom_msgs.msg import PlanGlobalPathFeedback, PlanGlobalPathAction, PlanGlobalPathResult, Point
+
+from Boundaries import Boundaries
+from graph import Graph
+
 
 class GlobalPlanner(object):
 
@@ -19,6 +24,9 @@ class GlobalPlanner(object):
         print('Global Planner Server Starting')
         self._as.start()
         print('Global Planner Server Server started')
+        self.boundary_file = './Maps/sdp_space_map.geojson' #TODO: pass in file?
+        self.boundaries = Boundaries(self.boundary_file)
+        self.graph = Graph(self.boundaries)
 
     
     def update_current_pos(self, gps_pos):
@@ -28,14 +36,32 @@ class GlobalPlanner(object):
 
         success = True
 
+        current_pos = goal.current_position
         goal_pos = goal.destination
+        constraints = self.input_constraints_to_lls(goal.constraints)
+        
+        path = self.graph.GetPath(current_pos, goal_pos, constraints)
+        
+        self._result = self.path_to_point_list(path)
 
-        self._as.publish_feedback(self._feedback)
+        #self._as.publish_feedback(self._feedback)
 
         if success:
             self._as.set_succeeded(self._result)
 
-
+    def input_constraints_to_lls(self, cs):
+        result = []
+        for c in cs:
+            l1 = LongLat(c[0].long, c[0].lat)
+            l2 = LongLat(c[1].long, c[1].lat)
+            result.append((l1, l2))
+        return result
+    
+    def path_to_point_list(self, path):
+        point_list = []
+        for nodeA in path:
+            point_list.append(Point(nodeA.longLat.long, nodeA.longLat.lat))
+        return point_list
 
         
     

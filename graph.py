@@ -76,7 +76,7 @@ class Graph:
         self.nodes = self.initializeNodes()
         self.initializeEdges()
         
-        self.ignoreEdgeMatrix = []
+        self.edgesToIgnore = []
 
     # generates all nodes in the graph, using self.boundaries object to generate the grid longlats
     def initializeNodes(self):
@@ -163,7 +163,7 @@ class Graph:
     
     def applyConstraint(self, cs):
         # cs = [(LongLat a, LongLat b)...]
-        self.ignoreEdgeMatrix.extend(self.constraintToEdges(cs))
+        self.edgesToIgnore.extend(self.constraintToEdges(cs))
         
     def constraintToEdges(self, cs):
         es = []
@@ -173,7 +173,7 @@ class Graph:
         
     def isIgnoredEdge(self, e):
         # should this be a matrix for fast lookup? rn its a list
-        return e in self.ignoreEdgeMatrix
+        return e in self.edgesToIgnore
         
     # traverse the node parents to reconstruct the optimal route used
     def reconstructPath(self, goal):
@@ -254,7 +254,7 @@ class Graph:
           
     # Once a search has been completed, reset all class variables           
     def flush(self, start, end, constraint):
-        #self.ignoreEdgeMatrix = []        
+        self.edgesToIgnore = []        
         #self.nodes.remove(start)
         #self.nodes.remove(end)
         # reset node f,g values

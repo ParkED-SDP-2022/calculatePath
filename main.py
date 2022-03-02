@@ -7,16 +7,16 @@ import matplotlib.pyplot as plt
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    G = Boundaries('Maps/testMap.geojson')
+    G = Boundaries('Maps/sdp_space_map.geojson')
 
     valid_point1 = LongLat(-3.19627046585083,55.941780007088)
     valid_point2 = LongLat(3.196860551834106,55.94188816036847)
     valid_point3 = LongLat(-3.1984376907348633,55.94196627088323)
 
-    start = LongLat(-3.1971824169158936,
-55.941936228396195)
-    end = LongLat (-3.1975686550140376,
-55.94121520171655)
+    start = LongLat(-2.65869140625,
+          1.1864386394452024)
+    end = LongLat (-0.19775390625,
+          2.4272521703917294)
     
     search = Graph(G)
     path = (search.GetPath(start =start, end=end))

@@ -27,7 +27,7 @@ if __name__ == '__main__':
         
     for ls in plot_line_strings:
         x,y = ls.xy
-        plt.plot(x,y, color="#212d52", linewidth=2, solid_capstyle='round')
+        plt.plot(x,y, color="#ff7040", linewidth=2, solid_capstyle='round')
         
     G.show_plot()
         

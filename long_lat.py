@@ -28,6 +28,8 @@ class LongLat:
         return LineString([(x1, y1), (x2, y2)])
     
     def __eq__(self, other):
+        if not isinstance(other, LongLat):
+            return False
         return self.long == other.long and self.lat == other.lat
     
     def __str__(self):

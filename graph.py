@@ -1,5 +1,6 @@
 from long_lat import LongLat
 import heapq
+import math
 
 class Graph:    
     
@@ -7,33 +8,36 @@ class Graph:
     class SearchNode:
         
         # initialise a search node
-        def __init__(self, ll : LongLat):
+        def __init__(self, ll : LongLat, i, j):
+            self.i = i
+            self.j = j
             self.longLat = ll
             self.edges = []
             self.parent = None
             self.g = float('inf')
             self.f = float('inf')
         
-        # add a new edge to the node
-        def addEdge(self, e):
+        # add a list of edges to the node
+        def addEdges(self, es):
             # Only include an edge once
-            if e not in self.edges:
-                self.edges.append(e)
+            for e in es:
+                if e not in self.edges:
+                    self.edges.append(e)
             
         # Nodes are equivalent if they are in the same location
         def __eq__(self, other):
-            return (self.longLat) == (other.longLat)
+            return (self.i) == (other.i) and self.j == other.j
         
         # a node is less than than another if its f value is shorter (used for heap representation)
         def __lt__(self, other):
             return self.f<other.f
         
         def __str__(self):
-            result = "{" + str(self.longLat) + "<-" 
+            result = "{(" + str(self.i) + "," + str(self.j) + ")<-" 
             if not self.parent:
                 result += "None"
             else:
-                result += str(self.parent.longLat)
+                result += "(" + str(self.parent.i) + "," + str(self.parent.j) + ")"
                 
             return result + "}"
         
@@ -77,69 +81,50 @@ class Graph:
 
     # generates all nodes in the graph, using self.boundaries object to generate the grid longlats
     def initializeNodes(self):
-        nodes = []
-        for longlat in self.Boundaries.generatePoints():
-            nodes.append(self.SearchNode(longlat))
+        nodes = {}
+        pointMatrix = self.Boundaries.generate_grid()
+        for i in range(len(pointMatrix)):
+            for j in range(len(pointMatrix[0])):
+                if pointMatrix[i][j] != -999:
+                    nodes[(i,j)] = self.SearchNode(pointMatrix[i][j], i, j)
         return nodes
+    
+    def getNode(self, i, j):
+        return self.nodes[(i,j)]
         
     # for all node, check if an edge exists between all other nodes by calling bounary method to check intersection 
     # add the edges to a list in the node object 
     def initializeEdges(self):
-        for nodeA in self.nodes:
-            for nodeB in self.nodes:
-                #TODO: not repeate calculations of existing edges
-                #TODO: what format to validate? node, edge, longlats?
-                #TODO: no overlapping edges?
-                newEdge = self.Edge(nodeA, nodeB)
-                if self.Boundaries.isValidEdge(newEdge) and nodeA != nodeB:
-                    nodeA.addEdge(newEdge)
-            
-            #print("finding edges for node " + str(nodeA) + ":" + listToStr(nodeA.edges ))
+        for key in self.nodes:
+            self.nodes[key].addEdges(self.generateEdges(self.nodes[key]))
+    
+    # validate edge
+    def generateEdges(self, A : SearchNode):
+        edges = []
+        for i in range(A.i-1, A.i+2):
+            for j in range(A.j-1, A.j+2):
+                if A.i == i and A.j == j:
+                    # never have an edge to yourself
+                    continue
+                if (i,j) in self.nodes:
+                    if self.Boundaries.is_valid_edge(A.longLat, self.nodes[(i, j)].longLat):
+                        edges.append(self.Edge(A, self.nodes[(i, j)]))
+        return edges
+                
+        
     
     # given a start, end and a constraing, use A* search to find the optimum path through the graph
     # TODO: decide how to represent constraint
-    def GetPath(self, start, end, constraint=[]):
+    def GetPath(self, start : LongLat, end : LongLat, constraint=[]):
         
         #TODO: determine when to flush the ignore matrix (e.g. stuck looping between two paths if remove immediately)
         self.applyConstraint(constraint)
         
         #Add beginning and end as nodes to the graph
         startNode, goalNode = self.addStartEnd(start, end)
+        # self.nodes[(goalNode.i, goalNode.j)] = goalNode
         
         result = self.aStar(startNode, goalNode)
-        
-        # toVisit = []
-        # heapq.heappush(toVisit, startNode)
-        # result = None
-        
-        # while len(toVisit) > 0:
-            
-        #     #TODO: handle taking too long or no available path
-        #     currentNode = heapq.heappop(toVisit) 
-            
-        #     for edge in currentNode.edges:
-        #         if self.isIgnoredEdge(edge):
-        #             continue
-                
-        #         child = edge.getOtherEnd(currentNode) #TODO: make sure to use the right end of the edge here
-               
-        #         if child == goalNode:
-        #             child.parent = currentNode
-        #             result = child
-        #             break 
-                
-        #         else:
-        #             temp_g = edge.cost
-        #             temp_f = temp_g + child.longLat.distance(goalNode.longLat)
-        #             if child.f > temp_f:
-        #                 child.parent = currentNode
-        #                 child.g = temp_g
-        #                 child.f = temp_f
-        #                 if child not in toVisit:
-        #                     heapq.heappush(toVisit, child)
-                                
-        #     if result:
-        #         break
         
         # remove temporary modifications to graph
         self.flush(startNode, goalNode, constraint) # TODO: can I flush before constructing the path? probably not...
@@ -148,6 +133,7 @@ class Graph:
     def aStar(self, startNode, goalNode):
         # Initialise the priority queue of nodes to visit
         toVisit = []
+        visited = []
         heapq.heappush(toVisit, startNode)
         
         while len(toVisit) > 0:
@@ -155,25 +141,35 @@ class Graph:
             
             # Look at all children of the node with the lowest f value and update them if necessary
             currentNode = heapq.heappop(toVisit) 
+            if currentNode == goalNode:
+                return currentNode
+            
             for edge in currentNode.edges:
-                if self.isIgnoredEdge(edge):
+                if self.isIgnoredEdge(edge) or (edge.getOtherEnd(currentNode).i, edge.getOtherEnd(currentNode).j) not in self.nodes:
                     continue
                 
                 child = edge.getOtherEnd(currentNode) #TODO: make sure to use the right end of the edge here
                 # If the child is a goal, we have found the shortest path
-                if child == goalNode:
+                # if child == goalNode:
+                #     print(child)
+                #     child.parent = currentNode
+                #     return child
+                # # Otherwise update the child if we have found a shorter route to it than previously
+                # else:
+                if child not in toVisit and child not in visited:
+                    heapq.heappush(toVisit, child)
                     child.parent = currentNode
-                    return child
-                # Otherwise update the child if we have found a shorter route to it than previously
+                    child.g = currentNode.g + edge.cost
+                    child.f = child.g + child.longLat.distance(goalNode.longLat)
                 else:
-                    temp_g = edge.cost
-                    temp_f = temp_g + child.longLat.distance(goalNode.longLat)
-                    if child.f > temp_f:
+                    if child.g > currentNode.g + edge.cost:
                         child.parent = currentNode
-                        child.g = temp_g
-                        child.f = temp_f
-                        if child not in toVisit:
+                        child.g = currentNode.g + edge.cost
+                        child.f = child.g + child.longLat.distance(goalNode.longLat)
+                        if child in visited:
+                            visited.remove(child)
                             heapq.heappush(toVisit, child)
+            heapq.heappush(visited, currentNode)
         # If no route is found return none                      
         return None
     
@@ -189,41 +185,60 @@ class Graph:
         
     # traverse the node parents to reconstruct the optimal route used
     def reconstructPath(self, goal):
+        # for k in self.nodes:
+        #     print(str(self.nodes[k]))
+        #return 0
         if not goal:
             return None
         
         path = [] 
         currentNode = goal
-        while not( not currentNode):
+        i = 0 
+        while not( not currentNode) and  i < 10:
+            print(currentNode)
             path.insert(0, currentNode)
             currentNode = currentNode.parent
+            i += 1
+            
+        #print(listToStr(path))
         return path
         
     # Add the start and goal locations to the graph, connecting them via valid edges
-    def addStartEnd(self, start, end):
-        
-        startNode = self.SearchNode(start)
-        startNode.g = 0
-        
-        endNode = self.SearchNode(end)
+    def addStartEnd(self, start : LongLat, end : LongLat):
+        max_dist_to_node = math.sqrt(2*(self.Boundaries.robot_size_in_coords**2))
+                       
+        endNode = self.SearchNode(end, -5, -5)
         endNode.g = 0
-        endNode.f =0 
+        endNode.f = 0 
         
-        for nodeA in [startNode, endNode]:
-            for nodeB in self.nodes:
-                newEdge = self.Edge(nodeA, nodeB)
-                if self.Boundaries.isValidEdge(newEdge) and nodeA != nodeB:
-                    nodeA.addEdge(newEdge)
-                    nodeB.addEdge(newEdge) #TODO: ensure no repeated edges occur
-                    
+        startNode = self.SearchNode(start, -10, -10)
+        startNode.g = 0
+        startNode.f = startNode.longLat.distance(endNode.longLat)                   
+
+        self.removeNodeByLongLat(startNode)
+        self.removeNodeByLongLat(endNode)
+        self.nodes[(endNode.i, endNode.j)] = endNode
         
-        if startNode in self.nodes:
-            # tODO: add this back at the end?
-            self.nodes.remove(startNode) #TODO: work out what to do here
-        if endNode not in self.nodes:
-            self.nodes.append(endNode)
+        for A in [startNode, endNode]:
+            for key in self.nodes:
+                B = self.nodes[key]
+                if abs(B.longLat.distance(A.longLat)) <= max_dist_to_node:
+                    if self.Boundaries.is_valid_edge(A.longLat, B.longLat):
+                        e = self.Edge(A, B)
+                        A.addEdges([e])
+                        B.addEdges([e]) 
             
         return startNode, endNode
+    
+    def removeNodeByLongLat(self, A):
+        removeKey = None
+        for key in self.nodes:
+            B = self.nodes[key]
+            if B.longLat == A.longLat:
+                removeKey = (B.i, B.j)
+        if removeKey:
+            self.nodes.pop(removeKey)
+        
           
     # Once a search has been completed, reset all class variables           
     def flush(self, start, end, constraint):

@@ -2,6 +2,7 @@ from long_lat import LongLat
 import heapq
 import math
 
+
 class Graph:    
     
     # Node Type for use in A* Search 
@@ -16,7 +17,7 @@ class Graph:
             self.parent = None
             self.g = float('inf')
             self.f = float('inf')
-        
+
         # add a list of edges to the node
         def addEdges(self, es):
             # Only include an edge once
@@ -60,7 +61,8 @@ class Graph:
        # Edges are equal if they have ends at the same points
         def __eq__(self, other):
             # Edges should be equal regardles of their direction
-            return (self.start == other.start and self.end == other.end) or (self.start == other.end and self.end == other.start)
+            return (self.start.longLat == other.start.longLat and self.end.longLat == other.end.longLat) or\
+                   (self.start.longLat == other.end.longLat and self.end.longLat == other.start.longLat)
         
         def __str__(self):
             return str(self.start) + "->" + str(self.end)
@@ -168,7 +170,7 @@ class Graph:
     def constraintToEdges(self, cs):
         es = []
         for (l1, l2) in cs:
-            es.append(self.Edge(l1, l2))
+            es.append(self.Edge(self.SearchNode(l1, -1, -1), self.SearchNode(l2, -1, -1)))
         return es
         
     def isIgnoredEdge(self, e):
@@ -187,7 +189,7 @@ class Graph:
         currentNode = goal
         i = 0 
         while not( not currentNode) and  i < 10:
-            print(currentNode)
+            print(currentNode.longLat)
             path.insert(0, currentNode)
             currentNode = currentNode.parent
             i += 1

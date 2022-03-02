@@ -26,6 +26,17 @@ class LongLat:
         y2 = longLat.lat
 
         return LineString([(x1, y1), (x2, y2)])
+
+    def midpoint(self, longLat):
+        x1 = self.long
+        y1 = self.lat
+        x2 = longLat.long
+        y2 = longLat.lat
+
+        new_x = (x1 + x2) / 2
+        new_y = (y1 + y2) / 2
+
+        return LongLat(new_x, new_y)
     
     def __eq__(self, other):
         if not isinstance(other, LongLat):

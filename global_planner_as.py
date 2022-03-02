@@ -24,7 +24,7 @@ class GlobalPlanner(object):
         print('Global Planner Server Starting')
         self._as.start()
         print('Global Planner Server Server started')
-        self.boundary_file = './Maps/sdp_space_map.geojson' #TODO: pass in file?
+        self.boundary_file = '/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_space_map.geojson' #TODO: pass in file?
         self.boundaries = Boundaries(self.boundary_file)
         self.graph = Graph(self.boundaries)
 
@@ -36,13 +36,15 @@ class GlobalPlanner(object):
 
         success = True
 
-        current_pos = goal.current_position
-        goal_pos = goal.destination
+        current_pos = LongLat(goal.current_position.long, goal.current_position.lat)
+        goal_pos = LongLat(goal.destination.long, goal.destination.lat)
         constraints = self.input_constraints_to_lls(goal.constraints)
         
-        path = self.graph.GetPath(current_pos, goal_pos, constraints)
         
-        self._result = self.path_to_point_list(path)
+        path = self.graph.GetPath(current_pos, goal_pos, constraints)
+        print(path)
+        
+        self._result.path = self.path_to_point_list(path)
 
         #self._as.publish_feedback(self._feedback)
 
@@ -60,7 +62,7 @@ class GlobalPlanner(object):
     def path_to_point_list(self, path):
         point_list = []
         for nodeA in path:
-            point_list.append(Point(nodeA.longLat.long, nodeA.longLat.lat))
+            point_list.append(Point(nodeA.longLat.long, nodeA.longLat.lat, -999))
         return point_list
 
         

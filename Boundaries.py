@@ -12,6 +12,7 @@ class Boundaries:
     def __init__(self, fname):
         # the more accurate size is = 0.0000027027 but using other value for dev
         self.robot_size_in_coords = 0.00015
+        self.origin = None
 
         # read file as shapely.geometry.MultiPolygon object
         multi_polygon = self.read_file(fname)
@@ -89,6 +90,8 @@ class Boundaries:
 
         x = x1_bound
         y = y2_bound
+        
+        self.origin = (x,y)
 
         grid = [[-999 for j in range(width)] for i in range(height)]  # init array
 

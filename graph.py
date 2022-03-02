@@ -76,8 +76,7 @@ class Graph:
         self.nodes = self.initializeNodes()
         self.initializeEdges()
         
-        # a list of edges which cannot be traversed TODO: make this a set?
-        self.ignoreEdgeMatrix = [] #TODO: enable this  
+        self.ignoreEdgeMatrix = []
 
     # generates all nodes in the graph, using self.boundaries object to generate the grid longlats
     def initializeNodes(self):
@@ -114,10 +113,7 @@ class Graph:
         
     
     # given a start, end and a constraing, use A* search to find the optimum path through the graph
-    # TODO: decide how to represent constraint
     def GetPath(self, start : LongLat, end : LongLat, constraint=[]):
-        
-        #TODO: determine when to flush the ignore matrix (e.g. stuck looping between two paths if remove immediately)
         self.applyConstraint(constraint)
         
         #Add beginning and end as nodes to the graph
@@ -136,9 +132,7 @@ class Graph:
         visited = []
         heapq.heappush(toVisit, startNode)
         
-        while len(toVisit) > 0:
-            #TODO: handle timeouts, start=end, etc
-            
+        while len(toVisit) > 0:            
             # Look at all children of the node with the lowest f value and update them if necessary
             currentNode = heapq.heappop(toVisit) 
             if currentNode == goalNode:
@@ -148,14 +142,7 @@ class Graph:
                 if self.isIgnoredEdge(edge) or (edge.getOtherEnd(currentNode).i, edge.getOtherEnd(currentNode).j) not in self.nodes:
                     continue
                 
-                child = edge.getOtherEnd(currentNode) #TODO: make sure to use the right end of the edge here
-                # If the child is a goal, we have found the shortest path
-                # if child == goalNode:
-                #     print(child)
-                #     child.parent = currentNode
-                #     return child
-                # # Otherwise update the child if we have found a shorter route to it than previously
-                # else:
+                child = edge.getOtherEnd(currentNode)
                 if child not in toVisit and child not in visited:
                     heapq.heappush(toVisit, child)
                     child.parent = currentNode
@@ -169,11 +156,13 @@ class Graph:
                         if child in visited:
                             visited.remove(child)
                             heapq.heappush(toVisit, child)
+                            
             heapq.heappush(visited, currentNode)
         # If no route is found return none                      
         return None
     
     def applyConstraint(self, c):
+        # c = [(LongLat a, LongLat b)...]
         self.ignoreEdgeMatrix.extend(self.constraintToEdges(c))
         
     def constraintToEdges(self, constraint):
@@ -207,11 +196,11 @@ class Graph:
     def addStartEnd(self, start : LongLat, end : LongLat):
         max_dist_to_node = math.sqrt(2*(self.Boundaries.robot_size_in_coords**2))
                        
-        endNode = self.SearchNode(end, -5, -5)
+        endNode = self.getNodeByLongLat(end)
         endNode.g = 0
         endNode.f = 0 
         
-        startNode = self.SearchNode(start, -10, -10)
+        startNode = self.getNodeByLongLat(start)
         startNode.g = 0
         startNode.f = startNode.longLat.distance(endNode.longLat)                   
 
@@ -230,6 +219,26 @@ class Graph:
             
         return startNode, endNode
     
+    def getNodeByLongLat(self, longLat):
+        foundKey = None
+        for key in self.nodes:
+            B = self.nodes[key]
+            if B.longLat == longLat:
+                foundKey = (B.i, B.j)
+        
+        if foundKey:
+            return self.nodes[foundKey]
+        else:
+            i, j = self.longLatToCoords(longLat)
+            node = self.SearchNode(longLat, i, j)
+            return node
+                
+    
+    def longLatToCoords(self, longLat):
+        i = (longLat.long - self.Boundaries.origin[0])/self.Boundaries.robot_size_in_coords
+        j = (self.Boundaries.origin[1] - longLat.lat)/self.Boundaries.robot_size_in_coords
+        return (i,j)
+    
     def removeNodeByLongLat(self, A):
         removeKey = None
         for key in self.nodes:
@@ -245,6 +254,7 @@ class Graph:
         #self.ignoreEdgeMatrix = []        
         #self.nodes.remove(start)
         #self.nodes.remove(end)
+        # reset node f,g values
         return
         
 def listToStr(l):

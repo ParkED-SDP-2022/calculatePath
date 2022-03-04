@@ -57,10 +57,10 @@ class TestGetPath(unittest.TestCase):
     def test_node_abides_by_constraint(self):
         path = self.graph.GetPath(self.valid_point1, self.valid_point2, self.constraints)
         for i in range(len(path) - 1):
-            edge = None
+            pair = None
             if i < (len(path) - 2):
-                pair = (path[i], path[i+1])
-            self.assertFalse(edge in self.constraints)
+                pair = (path[i].longLat, path[i+1].longLat)
+            self.assertFalse(pair in self.constraints)
 
 
 if __name__ == '__main__':

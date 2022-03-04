@@ -9,7 +9,7 @@ import timeit
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    G = Boundaries('Maps/sdp_space_map.geojson')
+    G = Boundaries('sdp_space_map.geojson')
 
     valid_point1 = LongLat(-3.19627046585083,55.941780007088)
     valid_point2 = LongLat(3.196860551834106,55.94188816036847)

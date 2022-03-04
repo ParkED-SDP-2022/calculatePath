@@ -9,6 +9,9 @@ import timeit
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    # warning, if you change the map to the updated one
+    # you will have to change the points that main.py and calculate_path_test.py run on
+    # otherwise it will return None values for every path. I will change this soon, love from rory x
     G = Boundaries('sdp_space_map.geojson')
 
     valid_point1 = LongLat(-3.19627046585083,55.941780007088)

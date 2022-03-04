@@ -59,7 +59,7 @@ class Boundaries:
 
     # method returns true iff point is in the boundary and in none of the obstacles
 
-    def is_valid_point_new(self, longLat):
+    def is_valid_point(self, longLat):
         point = longLat.to_point()
         safely_in_boundary = self.boundary_buffer.contains(point)
         not_touching_obstacle = not(self.point_in_polygons(self.obstacle_buffer, point))
@@ -107,7 +107,7 @@ class Boundaries:
                 if j != 0:
                     x = x + self.robot_size_in_coords
                 point = LongLat(x,y)
-                if self.is_valid_point_new(point):
+                if self.is_valid_point(point):
                     grid[i][j] = LongLat(x, y)
                     plt.scatter(x,y, color=self.dot_color)
         return grid

@@ -3,6 +3,7 @@ from graph import Graph
 from long_lat import LongLat
 from boundary_test import BoundaryTest
 import matplotlib.pyplot as plt
+import timeit
 
 
 
@@ -26,8 +27,11 @@ if __name__ == '__main__':
    # constraints = []
     
     search = Graph(G)
+
+
     path = (search.GetPath(start =start, end=end,
                            constraints=constraints))
+
 
     if constraints:
         for pair in constraints:

@@ -17,6 +17,7 @@ class Navigator(object):
         self._current_positon = None
         self._gps_pos = rospy.Subscriber('/robot_position', Point, self.update_current_position, queue_size=5)
         self._action_server = actionlib.SimpleActionServer('move_to_point', MoveToPointAction, self.handle_move_to_point, auto_start=False)
+        print('Navigator server has been started')
     
 
     def update_current_position(self, data):
@@ -65,6 +66,6 @@ class Navigator(object):
         return
     
 if __name__ == '__main__':
-    rospy.init_node('navigation_controller', anonymous=True)
+    rospy.init_node('navigator', anonymous=True)
     n = Navigator()
     rospy.spin()

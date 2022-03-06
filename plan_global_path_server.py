@@ -12,16 +12,14 @@ class Plan_Global_Path_Server(object):
 
 
     def __init__(self):
-        print('Loading files...')
-
-        self.boundary_file = '/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_space_map.geojson' #TODO: pass in file?
-        # self.boundary_file = 'sdp_space_map.geojson' #TODO: pass in file?
+        # self.boundary_file = '/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_space_map.geojson' #TODO: pass in file?
+        self.boundary_file = '/home/arehman/catkin_ws/src/calculatePath/sdp_demo_space_from_camera.geojson' #TODO: pass in file?
+        print('file name set')
         self.boundaries = Boundaries(self.boundary_file)
+        print('boundaries set')
         self.graph = Graph(self.boundaries)
 
         print('starting plan_global_path server')
-
-        rospy.init_node('plan_global_path')
         s = rospy.Service('/plan_global_path', PlanGlobalPath, self.handle_plan_global_path)
 
         print('plan_global_path server started')
@@ -54,6 +52,7 @@ class Plan_Global_Path_Server(object):
 
 
 if __name__ == "__main__":
+    rospy.init_node('plan_global_path')
     pgp = Plan_Global_Path_Server()
     rospy.spin()
 

@@ -30,7 +30,7 @@ if __name__ == '__main__':
     constraints = [(LongLat(0.5147368421052632,0.3210526315433332),
                    LongLat(0.5147368421052632,0.42105263154333317))]
 
-   # constraints = []
+    #constraints = []
     
     search = Graph(G)
 

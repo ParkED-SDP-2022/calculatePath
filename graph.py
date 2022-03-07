@@ -116,6 +116,8 @@ class Graph:
     
     # given a start, end and a constraing, use A* search to find the optimum path through the graph
     def GetPath(self, start : LongLat, end : LongLat, constraints=[] ):
+
+        print("start: " + str(start) + "\nend: " + str(end))
         self.applyConstraint(constraints) # constraints is list of pairs of longLats between wich we cannot travel
         # todo implement check for when start/end are in the buffer zone or out of the graph
         # todo mind, this should ideally be handled in the UI but how does it know what our buffer zone looks like?

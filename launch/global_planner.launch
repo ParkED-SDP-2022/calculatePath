@@ -1,4 +1,5 @@
 <launch>
 <node name="navigator" pkg="calculatePath" type="navigator.py"></node>
 <node name="plan_global_path" pkg="calculatePath" type="plan_global_path_server.py"></node>
+<node name="transform_coordinates_server" pkg="calculatePath" type="transform_coordinates_server.py"></node>
 </launch>

@@ -32,7 +32,7 @@ class Transform_Coordinates_server(object):
             long_conversion_constant = image_y / change_in_Long
             lat_conversion_constant = image_x / change_in_lat
 
-            point_to_convert = point.inputPosition
+            point_to_convert = point
 
             if data.flag == 1:
                 point_to_convert.long = long_conversion_constant * point_to_convert.long

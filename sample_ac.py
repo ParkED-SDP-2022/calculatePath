@@ -26,8 +26,7 @@ def fibonacci_client():
     #                 1.1864386394452024, -999), Point(-0.19775390625,
     #                 2.4272521703917294, -999), [])
 
-    goal = MoveToPointGoal(Point(-0.19775390625,
-                    2.4272521703917294, -999))
+    goal = MoveToPointGoal(Point(0.7772827148437499, 0.1977535136255067, -999))
 
     # Sends the goal to the action server.
     client.send_goal(goal, feedback_cb=handle_feedback)

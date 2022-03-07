@@ -33,6 +33,8 @@ class Navigator(object):
         gp_goal = PlanGlobalPathGoal()
         # gp_goal.current_position = self._current_positon
         gp_goal.current_position = Point()
+        gp_goal.current_position.long = 0.406494140625
+        gp_goal.current_position.lat = 1.0711045990129324
         gp_goal.destination = goal.destination
         gp_goal.constraints = []
 
@@ -65,17 +67,25 @@ class Navigator(object):
             transformed_coordinates = transform_coordinates_service(global_path, 1)
         except rospy.ServiceException as e:
             print("Service call failed: %s"%e)
-            self._result.long = -999
-            self._result.lat = -999
-            self._result.angle = -999
+            # self._result.long = -999
+            # self._result.lat = -999
+            # self._result.angle = -999
             self._action_server.set_aborted(self._result)
             return
         print(transformed_coordinates)
+
+
+        transformed_destination = transform_coordinates_service([goal.destination], 1).processedPositions[0]
         
-        local_planner = actionlib.SimpleActionClient('local_planner', NavigateAction)
+        local_planner = actionlib.SimpleActionClient('bench_x_local_planner', NavigateAction)
         local_planner.wait_for_server()
         print('waiting for lcoal planner server')
-        local_planner.send_goal(NavigateGoal(global_path[-1], global_path), done_cb=self.handle_local_planner_finished)
+
+        navigation_goal = NavigateGoal()
+        navigation_goal.destination = transformed_destination
+        navigation_goal.path = transformed_coordinates.processedPositions
+
+        local_planner.send_goal(navigation_goal)
         local_planner.wait_for_result()
         result = local_planner.get_result()
         if result:

@@ -11,7 +11,7 @@ class Boundaries:
 
     def __init__(self, fname):
         # the more accurate size is = 0.0000027027 but using other value for dev
-        self.robot_size_in_coords = 0.3
+        self.robot_size_in_coords = 0.1
         self.origin = None
 
         # read file as shapely.geometry.MultiPolygon object

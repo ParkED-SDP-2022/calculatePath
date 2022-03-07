@@ -17,6 +17,7 @@ class Navigator(object):
         self._current_positon = None
         self._gps_pos = rospy.Subscriber('/robot_position', Point, self.update_current_position, queue_size=5)
         self._action_server = actionlib.SimpleActionServer('move_to_point', MoveToPointAction, self.handle_move_to_point, auto_start=False)
+        self._action_server.start()
         print('Navigator server has been started')
     
 

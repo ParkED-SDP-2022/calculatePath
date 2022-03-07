@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from calendar import prcal
 from parked_custom_msgs.srv import TransformCoordinates,TransformCoordinatesResponse
 import rospy
 
@@ -26,19 +27,23 @@ class Transform_Coordinates_server(object):
         image_x = self.IMAGE_X
         image_y = self.IMAGE_Y
 
-        long_conversion_constant = image_y / change_in_Long
-        lat_conversion_constant = image_x / change_in_lat
+        processed_points = []
+        for point in data.inputPositions:
+            long_conversion_constant = image_y / change_in_Long
+            lat_conversion_constant = image_x / change_in_lat
 
-        point_to_convert = data.inputPosition
+            point_to_convert = point.inputPosition
 
-        if data.flag == 1:
-            point_to_convert.long = long_conversion_constant * point_to_convert.long
-            point_to_convert.lat = lat_conversion_constant * point_to_convert.lat
-        if data.flag == 2:
-            point_to_convert.long = (1 / long_conversion_constant) * point_to_convert.long
-            point_to_convert.lat = (1 / lat_conversion_constant) * point_to_convert.lat
+            if data.flag == 1:
+                point_to_convert.long = long_conversion_constant * point_to_convert.long
+                point_to_convert.lat = lat_conversion_constant * point_to_convert.lat
+            if data.flag == 2:
+                point_to_convert.long = (1 / long_conversion_constant) * point_to_convert.long
+                point_to_convert.lat = (1 / lat_conversion_constant) * point_to_convert.lat
 
-        return TransformCoordinatesResponse(point_to_convert)
+            processed_points.append(point_to_convert)
+
+        return TransformCoordinatesResponse(processed_points)
 
 
 if __name__ == "__main__":

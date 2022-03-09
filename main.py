@@ -34,6 +34,10 @@ if __name__ == '__main__':
     end = LongLat(0.19775390625,
             0.4272521703917294)
 
+    #end = LongLat(0.7772827148437499, 0.1977535136255067)
+
+
+
     # constraints = [(LongLat(-0.9000000000000004,3.1000000000000005),
     #                 LongLat(-0.9000000000000004,2.8000000000000007))]
 
@@ -46,20 +50,20 @@ if __name__ == '__main__':
                            constraints=constraints))
 
 
-    # if constraints:
-    #     for pair in constraints:
-    #         midpoint = pair[0].midpoint(pair[1])
-    #         plt.scatter(midpoint.long, midpoint.lat, marker='H', color='red', s=300)
+    if constraints:
+        for pair in constraints:
+            midpoint = pair[0].midpoint(pair[1])
+            plt.scatter(midpoint.long, midpoint.lat, marker='H', color='red', s=300)
 
 
 
-    # plot_line_strings = []
-    # for i in range(len(path) - 1):
-    #     plot_line_strings.append(path[i].longLat.to_LineString(path[i + 1].longLat))
+    plot_line_strings = []
+    for i in range(len(path) - 1):
+        plot_line_strings.append(path[i].longLat.to_LineString(path[i + 1].longLat))
         
-    # for ls in plot_line_strings:
-    #     x,y = ls.xy
-    #     plt.plot(x,y, color="#ff7040", linewidth=2, solid_capstyle='round')
+    for ls in plot_line_strings:
+        x,y = ls.xy
+        plt.plot(x,y, color="#ff7040", linewidth=2, solid_capstyle='round')
 
     G.show_plot()
         

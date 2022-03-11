@@ -4,7 +4,10 @@ import copy
 from long_lat import LongLat
 from typing import List
 import math
+import matplotlib
+matplotlib.use('PDF')
 import matplotlib.pyplot as plt
+
 
 # class is representation of boundary and known obstacles in the park
 class Boundaries:
@@ -48,7 +51,7 @@ class Boundaries:
         plt.plot(*polygon.exterior.xy, color=color, linestyle=linestyle)
 
     def show_plot(self):
-        plt.show()
+        plt.savefig('global_path.png')
 
     # method reads geojson file and returns a shapely.geometry.MultiPolygon object
     def read_file(self, fname):

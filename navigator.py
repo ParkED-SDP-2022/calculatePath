@@ -4,8 +4,8 @@ from threading import local
 from matplotlib.transforms import Transform
 import rospy
 import actionlib
-from parked_custom_msgs.msg import MoveToPointAction, MoveToPointGoal, MoveToPointFeedback, MoveToPointResult, NavigateAction, NavigateGoal, Point
-from parked_custom_msgs.srv import TransformCoordinates, PlanGlobalPath
+from parked_custom_msgs.msg import MoveToPointAction, MoveToPointGoal, MoveToPointFeedback, MoveToPointResult, NavigateAction, NavigateGoal, PlanGlobalPathAction, PlanGlobalPathGoal, Point
+from parked_custom_msgs.srv import TransformCoordinates
 
 class Navigator(object):
 
@@ -15,8 +15,9 @@ class Navigator(object):
 
     def __init__(self):
         self._current_positon = None
-        self._gps_pos = rospy.Subscriber('/robot_position', Point, self.update_current_position, queue_size=5)
+        self._gps_pos = rospy.Subscriber('/robot_position_longlat', Point, self.update_current_position, queue_size=5)
         self._action_server = actionlib.SimpleActionServer('move_to_point', MoveToPointAction, self.handle_move_to_point, auto_start=False)
+        self._action_server.start()
         print('Navigator server has been started')
     
 
@@ -29,16 +30,35 @@ class Navigator(object):
         self._feedback.message = "goal recieved"
         self._action_server.publish_feedback(self._feedback)
 
-        rospy.wait_for_service('plan_global_path')
-        try:
-            global_path_service = rospy.ServiceProxy('plan_global_path', PlanGlobalPath)
-            global_path = global_path_service(self._current_positon, goal, []).path
-        except:
-            self._result.long = -999
-            self._result.lat = -999
-            self._result.angle = -999
-            self._action_server.set_aborted(self._result)
-            return
+        gp_goal = PlanGlobalPathGoal()
+        # gp_goal.current_position = self._current_positon
+        gp_goal.current_position = Point()
+        gp_goal.current_position.long = self._current_positon.long
+        gp_goal.current_position.lat = self._current_positon.lat
+        gp_goal.destination = goal.destination
+        gp_goal.constraints = []
+
+        global_planner_ac = actionlib.SimpleActionClient('plan_global_path', PlanGlobalPathAction)
+        global_planner_ac.wait_for_server()
+        global_planner_ac.send_goal(gp_goal)
+        global_planner_ac.wait_for_result()
+        global_path = global_planner_ac.get_result().path
+
+
+        # rospy.wait_for_service('plan_global_path')
+        # print('service is available now')
+        # try:
+        #     global_path_service = rospy.ServiceProxy('plan_global_path', PlanGlobalPath)
+        #     global_path = global_path_service(self._current_positon, goal, [])
+        #     global_path = global_path.path
+        # except:
+        #     self._result.end_position.long = -999
+        #     self._result.end_position.lat = -999
+        #     self._result.end_position.angle = -999
+        #     self._action_server.set_aborted(self._result)
+        #     return
+
+
         
 
         rospy.wait_for_service('transform_coordinates')
@@ -47,17 +67,25 @@ class Navigator(object):
             transformed_coordinates = transform_coordinates_service(global_path, 1)
         except rospy.ServiceException as e:
             print("Service call failed: %s"%e)
-            self._result.long = -999
-            self._result.lat = -999
-            self._result.angle = -999
+            # self._result.long = -999
+            # self._result.lat = -999
+            # self._result.angle = -999
             self._action_server.set_aborted(self._result)
             return
         print(transformed_coordinates)
+
+
+        transformed_destination = transform_coordinates_service([goal.destination], 1).processedPositions[0]
         
-        local_planner = actionlib.SimpleActionClient('local_planner', NavigateAction)
+        local_planner = actionlib.SimpleActionClient('bench_x_local_planner', NavigateAction)
         local_planner.wait_for_server()
         print('waiting for lcoal planner server')
-        local_planner.send_goal(NavigateGoal(global_path[-1], global_path), done_cb=self.handle_local_planner_finished)
+
+        navigation_goal = NavigateGoal()
+        navigation_goal.destination = transformed_destination
+        navigation_goal.path = transformed_coordinates.processedPositions
+
+        local_planner.send_goal(navigation_goal)
         local_planner.wait_for_result()
         result = local_planner.get_result()
         if result:
@@ -68,4 +96,5 @@ class Navigator(object):
 if __name__ == '__main__':
     rospy.init_node('navigator', anonymous=True)
     n = Navigator()
-    rospy.spin()
+    while not rospy.is_shutdown():
+        rospy.spin()

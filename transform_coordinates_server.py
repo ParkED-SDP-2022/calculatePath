@@ -7,10 +7,10 @@ import rospy
 class Transform_Coordinates_server(object):
 
     def __init__(self):
-        self.LONG_MIN = 0.0
-        self.LONG_MAX = 1.2631578947
         self.LAT_MIN = 0.0
-        self.LAT_MAX = 1.0
+        self.LAT_MAX = 1.2631578947
+        self.LONG_MIN = 0.0
+        self.LONG_MAX = 1.0
         self.IMAGE_X = 1200
         self.IMAGE_Y = 950
 
@@ -32,7 +32,7 @@ class Transform_Coordinates_server(object):
             long_conversion_constant = image_y / change_in_Long
             lat_conversion_constant = image_x / change_in_lat
 
-            point_to_convert = point.inputPosition
+            point_to_convert = point
 
             if data.flag == 1:
                 point_to_convert.long = long_conversion_constant * point_to_convert.long

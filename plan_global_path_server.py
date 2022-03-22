@@ -9,6 +9,7 @@ import actionlib
 from long_lat import LongLat
 from Boundaries import Boundaries
 from graph import Graph
+import matplotlib.pyplot as plt
 
 class Plan_Global_Path_Server(object):
 
@@ -30,6 +31,7 @@ class Plan_Global_Path_Server(object):
         self._gps_pos = gps_pos
     
     def execute_cb(self, goal):
+        G = Boundaries('/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_demo_space_from_camera.geojson')
 
         success = True
 
@@ -47,6 +49,16 @@ class Plan_Global_Path_Server(object):
         self._result.path = self.path_to_point_list(path)
 
         #self._as.publish_feedback(self._feedback)
+
+        plot_line_strings = []
+        for i in range(len(path) - 1):
+            plot_line_strings.append(path[i].longLat.to_LineString(path[i + 1].longLat))
+        
+        for ls in plot_line_strings:
+            x,y = ls.xy
+            plt.plot(x,y, color="#ff7040", linewidth=2, solid_capstyle='round')
+
+        G.show_plot()
 
         if success:
             self._as.set_succeeded(self._result)

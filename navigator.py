@@ -15,7 +15,7 @@ class Navigator(object):
 
     def __init__(self):
         self._current_positon = None
-        self._gps_pos = rospy.Subscriber('/robot_position', Point, self.update_current_position, queue_size=5)
+        self._gps_pos = rospy.Subscriber('/robot_position_longlat', Point, self.update_current_position, queue_size=5)
         self._action_server = actionlib.SimpleActionServer('move_to_point', MoveToPointAction, self.handle_move_to_point, auto_start=False)
         self._action_server.start()
         print('Navigator server has been started')
@@ -33,8 +33,8 @@ class Navigator(object):
         gp_goal = PlanGlobalPathGoal()
         # gp_goal.current_position = self._current_positon
         gp_goal.current_position = Point()
-        gp_goal.current_position.long = 0.406494140625
-        gp_goal.current_position.lat = 1.0711045990129324
+        gp_goal.current_position.long = self._current_positon.long
+        gp_goal.current_position.lat = self._current_positon.lat
         gp_goal.destination = goal.destination
         gp_goal.constraints = []
 

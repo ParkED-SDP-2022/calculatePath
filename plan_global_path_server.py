@@ -31,37 +31,44 @@ class Plan_Global_Path_Server(object):
         self._gps_pos = gps_pos
     
     def execute_cb(self, goal):
-        G = Boundaries('/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_demo_space_from_camera.geojson')
-
         success = True
+        try:
+            G = Boundaries('/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_demo_space_from_camera.geojson')
 
-        current_pos = LongLat(goal.current_position.long, goal.current_position.lat)
-        goal_pos = LongLat(goal.destination.long, goal.destination.lat)
-        constraints = self.input_constraints_to_lls(goal.constraints)
+            
 
-        print(current_pos)
-        print(goal_pos)
-        print(constraints)
-        
-        path = self.graph.GetPath(current_pos, goal_pos, constraints)
-        print(path)
-        
-        self._result.path = self.path_to_point_list(path)
+            current_pos = LongLat(goal.current_position.long, goal.current_position.lat)
+            goal_pos = LongLat(goal.destination.long, goal.destination.lat)
+            constraints = self.input_constraints_to_lls(goal.constraints)
 
-        #self._as.publish_feedback(self._feedback)
+            print(current_pos)
+            print(goal_pos)
+            print(constraints)
+            
+            path = self.graph.GetPath(current_pos, goal_pos, constraints)
+            print(path)
+            
+            self._result.path = self.path_to_point_list(path)
 
-        plot_line_strings = []
-        for i in range(len(path) - 1):
-            plot_line_strings.append(path[i].longLat.to_LineString(path[i + 1].longLat))
-        
-        for ls in plot_line_strings:
-            x,y = ls.xy
-            plt.plot(x,y, color="#ff7040", linewidth=2, solid_capstyle='round')
+            #self._as.publish_feedback(self._feedback)
 
-        G.show_plot()
+            plot_line_strings = []
+            for i in range(len(path) - 1):
+                plot_line_strings.append(path[i].longLat.to_LineString(path[i + 1].longLat))
+            
+            for ls in plot_line_strings:
+                x,y = ls.xy
+                plt.plot(x,y, color="#ff7040", linewidth=2, solid_capstyle='round')
+
+            G.show_plot()
+
+        except: 
+            success = False
 
         if success:
             self._as.set_succeeded(self._result)
+        else:
+            self._as.set_aborted(self._result)
 
     def input_constraints_to_lls(self, cs):
         result = []

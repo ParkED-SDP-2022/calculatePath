@@ -12,7 +12,7 @@ if __name__ == '__main__':
     # warning, if you change the map to the updated one
     # you will have to change the points that main.py and calculate_path_test.py run on
     # otherwise it will return None values for every path. I will change this soon, love from rory x
-     G = Boundaries('/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_demo_space_from_camera.geojson')
+    G = Boundaries('/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_demo_space_from_camera.geojson')
 
     # valid_point1 = LongLat(-3.19627046585083,55.941780007088)
     # valid_point2 = LongLat(3.196860551834106,55.94188816036847)
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     #                 1.1864386394452024)
     #
     # end = LongLat (-0.19775390625,
-    #                 2.4272521703917294)
+    #                 ##2.4272521703917294)###
 
     start = LongLat(0.406494140625, 1.0711045990129324)
     end = LongLat(0.7772827148437499, 0.1977535136255067)

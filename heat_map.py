@@ -3,31 +3,36 @@ from geojson import Point, Feature, FeatureCollection
 import math
 time_resolution = 0.1  # fiddling with this value is encouraged
 
-# hello! long_lat is just going to be a tuple(float, float) for simplicities sake.
+# hello! long_lat is just going to be a tuple(float, float) for simplicitiy's sake.
 # I hope this doesn't feel too complicated :^)
 class HeatMapList:
-    def __init__(self):
-        # list of completed Occupy objects
+    def __init__(self, number_of_benches):
+
+        self.bench_dict = {}
+        self.candidate_dict = {}
         self.occupy_list = []
-        # the Occupy object of a bench currently being sat on
-        # it doesn't have an end_time or duration yet
-        self.candidate = None
-        # list of features
+
+        for i in range(number_of_benches):
+            self.bench_dict[i+1] = Bench(i, (-1,-1), 100, False)
+            self.candidate_dict[i+1] = None
 
     # method called when the bench status changes.
-    def change_state(self, long_lat, time: datetime, sit_down):
+    def change_state(self, bench_id, long_lat, time: datetime, sit_down, battery=100):
         if sit_down:
-            self.candidate = Occupy(time, long_lat)  # creates new Occupy obj when sat on
+            self.candidate_dict[bench_id] = Occupy(time, long_lat)  # creates new Occupy obj when sat on
+            self.bench_dict[bench_id].change_state(long_lat, battery, sit_down)
         else:  # completes this obj with end_time and duration when sat off and adds to list
-            if self.candidate.long_lat != long_lat:
-                # not sure how to handle this state. I think the most graceful thing to
-                # do in our situation is just keep going like this.
-                print("This probably shouldn't happen but it's not an issue: problem with arguments for change_state" )
-            self.candidate.add_end_time(time)
-            self.occupy_list.append(self.candidate)
+            if self.candidate_dict[bench_id] is None:
+                self.bench_dict[bench_id].change_state(long_lat, battery, sit_down)
+                print('Error: invalid bench state - process can carry on but heatMap is now inaccurate')
+                print('This might have been caused by an invalid initialisation - all benches should begin with sit_down == False')
+            else:
+                self.candidate_dict[bench_id].add_end_time(time)
+                self.occupy_list.append(self.candidate_dict[bench_id])
+                self.bench_dict[bench_id].change_state(long_lat, battery, sit_down)
 
     # returns a feature collection of points from the occupy list between a specified window
-    def to_geojson(self, start_time_window=datetime.datetime.min, end_time_window=datetime.datetime.max):
+    def to_geojson_heatmap(self, start_time_window=datetime.datetime.min, end_time_window=datetime.datetime.max):
         features = []
         for occupy in self.occupy_list:
             if occupy.start_time >= start_time_window and occupy.end_time < end_time_window:
@@ -40,6 +45,15 @@ class HeatMapList:
         feature_collection = FeatureCollection(features)
         return feature_collection
 
+    def to_geojson_benchstate(self):
+        features = []
+        for key in self.bench_dict.keys():
+            features.append(self.bench_dict[key].to_geojson_feature())
+        feature_collection = FeatureCollection(features)
+        return feature_collection
+
+
+
 # Occupy data structure represents a (sit on, get off) bench interaction
 class Occupy:
     def __init__(self, start_time: datetime, long_lat):
@@ -51,4 +65,27 @@ class Occupy:
     def add_end_time(self, end_time: datetime):
         self.end_time = end_time
         self.duration = (self.end_time - self.start_time).total_seconds()
+
+class Bench:
+    def __init__(self, bench_id: int, long_lat, battery=100, sit_down=False):
+        self.bench_id = bench_id
+        self.battery = battery
+        self.sit_down = sit_down
+        self.long_lat = long_lat
+
+    def change_state(self, long_lat, battery, sit_down):
+        self.long_lat = long_lat
+        self.sit_down = sit_down
+        self.battery = battery
+
+    def to_geojson_feature(self):
+        properties = {"benchName": self.bench_id,
+                      "battery": self.battery,
+                      "inUse": self.sit_down}
+
+        point = Point((self.long_lat[0], self.long_lat[1]))
+
+        return Feature(geometry=point, properties=properties)
+
+
 

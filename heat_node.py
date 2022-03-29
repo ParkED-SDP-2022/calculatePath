@@ -2,7 +2,7 @@
 import rospy
 from parked_custom_msgs.msg import Point
 from std_msgs.msg import String, Bool
-from heat_map import HeatMapList
+from heat_map import HeatMapList # todo we need to change message type to handle bench_id
 import datetime
 
 class HeatNode:
@@ -34,12 +34,15 @@ class HeatNode:
         time = datetime.datetime.now()
         long_lat = (longitude, latitude)
 
+        # todo we need to use this bench_id in the calling of these methods
         self.heat_map.change_state(long_lat, time, sit_down)
 
         if not sit_down:
-            geojson = self.heat_map.to_geojson().dump()
+            geojson = self.heat_map.to_geojson_heatmap().dump()
             self.publisher_msg.data = geojson
             self.heat_map_publisher.publish(self.publisher_msg)
+
+        # todo we need to make use of the to_geojson_benchstate() method publishing its fruits to frontend
     
     def update_current_position(self, data):
         self.current_position = data

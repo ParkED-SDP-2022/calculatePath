@@ -13,7 +13,7 @@ class HeatMapList:
         self.occupy_list = []
 
         for i in range(number_of_benches):
-            self.bench_dict[i+1] = Bench(i, (-1,-1), 100, False)
+            self.bench_dict[i+1] = Bench(i+1, (-1,-1), 100, False)
             self.candidate_dict[i+1] = None
 
     # method called when the bench status changes.

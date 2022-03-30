@@ -25,12 +25,14 @@ class HeatNode:
 
 
     def pressure_subscriber_cb(self, pressure_data):
-        if self.current_position == None:
-            return
+        # if self.current_position == None:
+        #     return
         
-        longitude = self.current_position.long
-        latitude = self.current_position.lat
-        sit_down = pressure_data.sit_down.data
+        # longitude = self.current_position.long
+        # latitude = self.current_position.lat
+        longitude = 0.5
+        latitude = 0.5
+        sit_down = pressure_data.data
         time = datetime.datetime.now()
         long_lat = (longitude, latitude)
 
@@ -38,7 +40,7 @@ class HeatNode:
         self.heat_map.change_state(1, long_lat, time, sit_down)
 
         if not sit_down:
-            geojson_heatmap = self.heat_map.to_geojson_heatmap().dump()
+            geojson_heatmap = str(self.heat_map.to_geojson_heatmap())
             #geojson_benchstate = self.heat_map.to_geojson_benchstate() # todo let's not forget to publish this
             self.publisher_msg.data = geojson_heatmap
             self.heat_map_publisher.publish(self.publisher_msg)

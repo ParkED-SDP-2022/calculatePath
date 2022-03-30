@@ -168,7 +168,8 @@ class Graph:
                             heapq.heappush(toVisit, child)
                             
             heapq.heappush(visited, currentNode)
-        # If no route is found return none                      
+        # If no route is found return none
+        print("no route found")
         return None
     
     def applyConstraint(self, cs):
@@ -191,6 +192,7 @@ class Graph:
         #     print(str(self.nodes[k]))
         #return 0
         if not goal:
+            print("no goal reached in reconstruct path")
             return None
         
         path = [] 

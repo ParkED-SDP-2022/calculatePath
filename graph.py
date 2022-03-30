@@ -122,7 +122,7 @@ class Graph:
         # todo implement check for when start/end are in the buffer zone or out of the graph
         # todo mind, this should ideally be handled in the UI but how does it know what our buffer zone looks like?
 
-        if not(self.Boundaries.is_valid_point(start) or self.Boundaries.is_valid_point(end)):
+        if not(self.Boundaries.is_valid_point(start)) or not(self.Boundaries.is_valid_point(end)):
             print('ERROR: Start or End position out of bounds')
             return None
         

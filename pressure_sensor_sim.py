@@ -5,7 +5,7 @@ from std_msgs.msg import Bool
 class Pressure_Sensor_Sim:
 
     def __init__(self):
-        self.publisher = rospy.Publisher('/pressure_data', Bool, queue_size=2)
+        self.publisher = rospy.Publisher('/bench_1_pressure_data', Bool, queue_size=2)
         rospy.init_node('pressure_sensor_sim')
         print('sim node has been started')
         data = Bool()

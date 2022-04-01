@@ -10,22 +10,22 @@ class HeatNode:
         self.heat_map = HeatMapList(1)
         # subscribes to pressure sensor data. The payload of the the message will just be a boolean
         self.bench1_pressure_subscriber = rospy.Subscriber('/bench_1_pressure_data', Bool,
-                                                    self.pressure_subscriber_cb, callback_args=1)
+                                                    self.pressure_subscriber_cb, callback_args=[1])
         self.bench2_pressure_subscriber = rospy.Subscriber('/bench_2_pressure_data', Bool,
-                                                    self.pressure_subscriber_cb, callback_args=2)
+                                                    self.pressure_subscriber_cb, callback_args=[2])
         self.bench3_pressure_subscriber = rospy.Subscriber('/bench_3_pressure_data', Bool,
-                                                    self.pressure_subscriber_cb, callback_args=3)
+                                                    self.pressure_subscriber_cb, callback_args=[3])
         self.bench4_pressure_subscriber = rospy.Subscriber('/bench_4_pressure_data', Bool,
-                                                    self.pressure_subscriber_cb, callback_args=4)
+                                                    self.pressure_subscriber_cb, callback_args=[4])
 
         # subscribes to robot's current position. The payload of the message will be a parked_custom_msgs/Point object
-        self.position_subscriber = rospy.Subscriber('/robot_positon_1', Point, self.update_current_position, callback_args=1)
-        self.position_subscriber = rospy.Subscriber('/robot_positon_2', Point, self.update_current_position, callback_args=2)
-        self.position_subscriber = rospy.Subscriber('/robot_positon_3', Point, self.update_current_position, callback_args=3)
-        self.position_subscriber = rospy.Subscriber('/robot_positon_4', Point, self.update_current_position, callback_args=4)
-        self.bench1_current_position = None
-        self.bench2_current_position = Point(0.5,0.5,-999)
-        self.bench3_current_position = Point(0.5,0.5,-999)
+        self.position_subscriber = rospy.Subscriber('/robot_position_longlat', Point, self.update_current_position, callback_args=1)
+        # self.position_subscriber = rospy.Subscriber('/robot_positon_2', Point, self.update_current_position, callback_args=2)
+        # self.position_subscriber = rospy.Subscriber('/robot_positon_3', Point, self.update_current_position, callback_args=3)
+        # self.position_subscriber = rospy.Subscriber('/robot_positon_4', Point, self.update_current_position, callback_args=4)
+        self.bench1_current_position = Point(0.6,0.6,-999)
+        self.bench2_current_position = Point(1.6,1.7,-999)
+        self.bench3_current_position = Point(-0.3,-0.2,-999)
         self.bench4_current_position = Point(0.5,0.5,-999)
 
         # publishes string notation of geojson
@@ -36,26 +36,28 @@ class HeatNode:
         rospy.spin()
 
 
-    def pressure_subscriber_cb(self, pressure_data, bench_id):
+    def pressure_subscriber_cb(self, pressure_data, args):
         # if self.current_position == None:
         #     return
-        
-        longitude = None
-        latitude = None
+        bench_id = args[0]
+        longitude = 0.5
+        latitude = 0.5
         if bench_id == 1:
+            print("seeing bench 1")
             longitude = self.bench1_current_position.long
             latitude = self.bench1_current_position.lat
         elif bench_id == 2:
+            print("seeing bench 2")
             longitude = self.bench2_current_position.long
             latitude = self.bench2_current_position.lat
         elif bench_id == 3:
+            print("seeing bench 2")
             longitude = self.bench3_current_position.long
             latitude = self.bench3_current_position.lat
         elif bench_id == 4:
+            print("seeing bench 2")
             longitude = self.bench4_current_position.long
             latitude = self.bench4_current_position.lat
-        longitude = 0.5
-        latitude = 0.5
         sit_down = pressure_data.data
         time = datetime.datetime.now()
         long_lat = (longitude, latitude)

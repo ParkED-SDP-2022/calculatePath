@@ -7,7 +7,7 @@ import datetime
 
 class HeatNode:
     def __init__(self):
-        self.heat_map = HeatMapList(1)
+        self.heat_map = HeatMapList(4)
         # subscribes to pressure sensor data. The payload of the the message will just be a boolean
         self.bench1_pressure_subscriber = rospy.Subscriber('/bench_1_pressure_data', Bool,
                                                     self.pressure_subscriber_cb, callback_args=1)
@@ -31,6 +31,10 @@ class HeatNode:
         # publishes string notation of geojson
         self.heat_map_publisher = rospy.Publisher('/heat_map_data', String, queue_size=5)
         self.publisher_msg = String()
+
+        # Publish location data
+        self.bench_state_publisher = rospy.Publisher('/bench_state_data', String, queue_size=5)
+        self.bench_state_publisher_msg = String()
 
         rospy.init_node('heat_node', anonymous=True)
         rospy.spin()
@@ -65,9 +69,11 @@ class HeatNode:
 
         if not sit_down:
             geojson_heatmap = str(self.heat_map.to_geojson_heatmap())
-            #geojson_benchstate = self.heat_map.to_geojson_benchstate() # todo let's not forget to publish this
+            geojson_benchstate = str(self.heat_map.to_geojson_benchstate())
             self.publisher_msg.data = geojson_heatmap
             self.heat_map_publisher.publish(self.publisher_msg)
+            self.bench_state_publisher_msg.data = geojson_benchstate
+            self.bench_state_publisher.publish(self.bench_state_publisher_msg)
 
         # todo we need to make use of the to_geojson_benchstate() method publishing its fruits to frontend
     

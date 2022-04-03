@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 class Boundaries:
 
     def __init__(self, fname):
-        self.robot_size_in_coords = 0.1
+        self.robot_size_in_coords = 0.08
         self.origin = None
 
         # read file as shapely.geometry.MultiPolygon object
@@ -25,10 +25,10 @@ class Boundaries:
 
         # create buffer zones
         # a negative distance (first argument in buffer()) represents erosion which is used for the boundary
-        self.boundary_buffer = self.boundary_polygon.buffer(-self.robot_size_in_coords/2, single_sided=False)
+        self.boundary_buffer = self.boundary_polygon.buffer(-self.robot_size_in_coords*1.2, single_sided=False)
 
         # positive distance is dilation which is used for each obstacle
-        self.obstacle_buffer = MultiPolygon([obstacle.buffer(self.robot_size_in_coords/2, single_sided=False) for obstacle in self.obstacle_polygon.geoms])
+        self.obstacle_buffer = MultiPolygon([obstacle.buffer(self.robot_size_in_coords*1.1, single_sided=False) for obstacle in self.obstacle_polygon.geoms])
 
         # plot boundaries and buffers
         self.dot_color = '#6ca85e'
@@ -112,5 +112,6 @@ class Boundaries:
                 if self.is_valid_point(point):
                     grid[i][j] = LongLat(x, y)
                     plt.scatter(x,y, color=self.dot_color)
+        self.show_plot()
         return grid
 

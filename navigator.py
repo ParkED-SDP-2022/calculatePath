@@ -82,7 +82,10 @@ class Navigator(object):
         if result:
             self._result = self._gps_pos
             self._action_server.set_succeeded(self._result)
-        return
+        else:
+            self._result = self._gps_pos
+            self._action_server.set_aborted(self._result)
+        print('exiting callback')
 
     def transform_coordinates(self, data, flag):
         

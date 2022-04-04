@@ -39,10 +39,8 @@ class HeatNode:
         rospy.init_node('heat_node', anonymous=True)
         rospy.spin()
 
-
+    # Updates the 'seated' status of benches when sat on or un-sat on
     def pressure_subscriber_cb(self, pressure_data, args):
-        # if self.current_position == None:
-        #     return
         bench_id = args[0]
         longitude = 0.5
         latitude = 0.5
@@ -55,11 +53,9 @@ class HeatNode:
             longitude = self.bench2_current_position.long
             latitude = self.bench2_current_position.lat
         elif bench_id == 3:
-            print("seeing bench 2")
             longitude = self.bench3_current_position.long
             latitude = self.bench3_current_position.lat
         elif bench_id == 4:
-            print("seeing bench 2")
             longitude = self.bench4_current_position.long
             latitude = self.bench4_current_position.lat
         sit_down = pressure_data.data
@@ -69,25 +65,33 @@ class HeatNode:
         # todo we need to use this bench_id in the calling of these methods
         self.heat_map.change_state(bench_id, long_lat, time, sit_down)
 
-        if not sit_down:
+        if not sit_down:    #TODO: does this only publish when people stand up? If so, the bench state will never be 'in use'
             geojson_heatmap = str(self.heat_map.to_geojson_heatmap())
             geojson_benchstate = str(self.heat_map.to_geojson_benchstate())
             self.publisher_msg.data = geojson_heatmap
             self.heat_map_publisher.publish(self.publisher_msg)
             self.bench_state_publisher_msg.data = geojson_benchstate
             self.bench_state_publisher.publish(self.bench_state_publisher_msg)
-
-        # todo we need to make use of the to_geojson_benchstate() method publishing its fruits to frontend
     
+    # Updates stored bench positions when they change and publishes new feature collection of benches to frontend
+    # TODO: ensure this isn't publishing too often to be feasible
     def update_current_position(self, data, bench_id):
         if bench_id == 1:
             self.bench1_current_position = data
+            self.heat_map.change_loc(1, data)
         elif bench_id == 2:
             self.bench2_current_position = data
+            self.heat_map.change_loc(2, data)
         elif bench_id == 3:
             self.bench3_current_position = data
+            self.heat_map.change_loc(3, data)
         elif bench_id == 4:
             self.bench4_current_position = data
+            self.heat_map.change_loc(4, data)
+            
+        geojson_benchstate = str(self.heat_map.to_geojson_benchstate())
+        self.bench_state_publisher_msg.data = geojson_benchstate
+        self.bench_state_publisher.publish(self.bench_state_publisher_msg)
     
 if __name__ == '__main__':
     hn = HeatNode()

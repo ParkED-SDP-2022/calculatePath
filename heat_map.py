@@ -30,6 +30,9 @@ class HeatMapList:
                 self.candidate_dict[bench_id].add_end_time(time)
                 self.occupy_list.append(self.candidate_dict[bench_id])
                 self.bench_dict[bench_id].change_state(long_lat, battery, sit_down)
+                
+    def change_loc(self, bench_id, long_lat):
+        self.bench_dict[bench_id].change_loc(long_lat)
 
     # returns a feature collection of points from the occupy list between a specified window
     def to_geojson_heatmap(self, start_time_window=datetime.datetime.min, end_time_window=datetime.datetime.max):
@@ -77,6 +80,9 @@ class Bench:
         self.long_lat = long_lat
         self.sit_down = sit_down
         self.battery = battery
+        
+    def change_loc(self, long_lat):
+        self.long_lat = long_lat
 
     def to_geojson_feature(self):
         properties = {"benchName": self.bench_id,

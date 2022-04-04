@@ -24,7 +24,7 @@ class Plan_Global_Path_Server(object):
         print('Global Planner Server Server started')
         self.boundary_file = '/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_demo_space_from_camera.geojson' #TODO: pass in file?
         self.boundaries = Boundaries(self.boundary_file)
-        self.graph = Graph(self.boundaries)
+        # self.graph = Graph(self.boundaries)
 
     
     def update_current_pos(self, gps_pos):
@@ -34,6 +34,7 @@ class Plan_Global_Path_Server(object):
         success = True
         try:
             G = Boundaries('/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_demo_space_from_camera.geojson')
+            graph = Graph(G)
 
             
 
@@ -41,11 +42,28 @@ class Plan_Global_Path_Server(object):
             goal_pos = LongLat(goal.destination.long, goal.destination.lat)
             constraints = self.input_constraints_to_lls(goal.constraints)
 
-            print(current_pos)
-            print(goal_pos)
-            print(constraints)
+            # print(current_pos)
+            # print(goal_pos)
+            # print(constraints)
             
-            path = self.graph.GetPath(current_pos, goal_pos, constraints)
+            path = graph.GetPath(current_pos, goal_pos, constraints)
+
+            ##############################################
+
+            # G = Boundaries('/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_demo_space_from_camera.geojson')
+            # graph = Graph(G)
+
+            
+
+            # current_pos = LongLat(goal.current_position.long, goal.current_position.lat)
+            # current_pos = path[2]
+            # goal_pos = LongLat(goal.destination.long, goal.destination.lat)
+            # constraints = self.input_constraints_to_lls(goal.constraints)
+            # constraints.append(path[3])
+            # path = graph.GetPath(current_pos, goal_pos, constraints)
+
+            ##############################################
+
             print(path)
             
             self._result.path = self.path_to_point_list(path)
@@ -62,7 +80,8 @@ class Plan_Global_Path_Server(object):
 
             G.show_plot()
 
-        except: 
+        except Exception as ex: 
+            print(ex)
             success = False
 
         if success:

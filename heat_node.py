@@ -33,7 +33,7 @@ class HeatNode:
         self.publisher_msg = String()
 
         # Publish location data
-        self.bench_state_publisher = rospy.Publisher('/bench_state_data', String, queue_size=5)
+        self.bench_state_publisher = rospy.Publisher('/bench_state_data', String, queue_size=1)
         self.bench_state_publisher_msg = String()
 
         rospy.init_node('heat_node', anonymous=True)
@@ -76,6 +76,8 @@ class HeatNode:
     # Updates stored bench positions when they change and publishes new feature collection of benches to frontend
     # TODO: ensure this isn't publishing too often to be feasible
     def update_current_position(self, data, bench_id):
+        print("updating cp: ", bench_id, data)
+        
         if bench_id == 1:
             self.bench1_current_position = data
             self.heat_map.change_loc(1, data)

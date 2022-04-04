@@ -22,7 +22,7 @@ class Plan_Global_Path_Server(object):
         print('Global Planner Server Starting')
         self._as.start()
         print('Global Planner Server Server started')
-        self.boundary_file = '/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_demo_space_from_camera.geojson' #TODO: pass in file?
+        self.boundary_file = '/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_demo_space_from_camera_2.geojson' #TODO: pass in file?
         self.boundaries = Boundaries(self.boundary_file)
         # self.graph = Graph(self.boundaries)
 
@@ -33,7 +33,7 @@ class Plan_Global_Path_Server(object):
     def execute_cb(self, goal):
         success = True
         try:
-            G = Boundaries('/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_demo_space_from_camera.geojson')
+            G = Boundaries('/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_demo_space_from_camera_2.geojson')
             graph = Graph(G)
 
             

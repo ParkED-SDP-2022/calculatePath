@@ -7,17 +7,26 @@ import math
 import matplotlib
 matplotlib.use('PDF')
 import matplotlib.pyplot as plt
+import geojson
 
 
 # class is representation of boundary and known obstacles in the park
 class Boundaries:
 
     def __init__(self, fname):
-        self.robot_size_in_coords = 0.08
+        self.LAT_MIN = 0.0
+        self.LAT_MAX = 1.2631578947
+        self.LONG_MIN = 0.0
+        self.LONG_MAX = 1.0
+        self.IMAGE_Y = 950
+        self.IMAGE_X = 1200
+
+
+        self.robot_size_in_coords = 0.092
         self.origin = None
 
         # read file as shapely.geometry.MultiPolygon object
-        multi_polygon = self.read_file(fname)
+        multi_polygon = self.read_file(fname, 1)
 
         # 0th polygon is the boundary, all of the rest are obstacles
         self.boundary_polygon = multi_polygon.geoms[0]
@@ -28,7 +37,7 @@ class Boundaries:
         self.boundary_buffer = self.boundary_polygon.buffer(-self.robot_size_in_coords*1, single_sided=False)
 
         # positive distance is dilation which is used for each obstacle
-        self.obstacle_buffer = MultiPolygon([MultiPolygon([obstacle.buffer(self.robot_size_in_coords*(1.3), single_sided=False) for obstacle in self.obstacle_polygon.geoms]).buffer(0)])
+        self.obstacle_buffer = MultiPolygon([MultiPolygon([obstacle.buffer(self.robot_size_in_coords*(1), single_sided=False) for obstacle in self.obstacle_polygon.geoms]).buffer(0)])
 
         # plot boundaries and buffers
         self.dot_color = '#6ca85e'
@@ -53,9 +62,22 @@ class Boundaries:
         plt.savefig('global_path.png')
 
     # method reads geojson file and returns a shapely.geometry.MultiPolygon object
-    def read_file(self, fname):
+    def read_file(self, fname, flag):
         with open(fname) as file:
             features = (json.load(file)["features"])
+            if flag == 1:
+                change_in_Long = self.LONG_MAX - self.LONG_MIN
+                change_in_lat = self.LAT_MAX - self.LAT_MIN
+                long_conversion_constant = change_in_Long / self.IMAGE_Y
+                lat_conversion_constant = change_in_lat / self.IMAGE_X
+                for x in range(len(features)):
+                    for y in range(len(features[x]['geometry']['coordinates'][0])):
+                        features[x]['geometry']['coordinates'][0][y][0] = features[x]['geometry']['coordinates'][0][y][0] * long_conversion_constant
+                        features[x]['geometry']['coordinates'][0][y][1] = features[x]['geometry']['coordinates'][0][y][1] * lat_conversion_constant
+                json_string = json.dumps(features)
+                with open('json_data.geojson', 'w') as outfile:
+                    json.dump(features, outfile)
+                
             multi_polygon = MultiPolygon([shape(feature["geometry"]) for feature in features])
             return multi_polygon
 
@@ -112,6 +134,6 @@ class Boundaries:
                 if self.is_valid_point(point):
                     grid[i][j] = LongLat(x, y)
                     plt.scatter(x,y, color=self.dot_color)
-        #self.show_plot()
+        self.show_plot()
         return grid
 

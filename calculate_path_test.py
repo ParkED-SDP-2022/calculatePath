@@ -7,7 +7,7 @@ from long_lat import LongLat
 class TestGetPath(unittest.TestCase):
 
     def setUp(self):
-        self.boundaries = Boundaries('/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_demo_space_from_camera.geojson')
+        self.boundaries = Boundaries('/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_demo_space_from_camera_2.geojson')
         self.graph = Graph(self.boundaries)
 
         self.valid_point1 = LongLat(0.53009033203125,
@@ -26,7 +26,8 @@ class TestGetPath(unittest.TestCase):
         self.point_very_close_to_boundary = LongLat(0.65643310546875,
           0.832185094669236)
 
-        self.constraints = []
+        self.constraints = [(LongLat(0.19978947368421052,0.9587368420692498), 
+        LongLat(0.2917894736842105,1.0507368420692498))]
 
     def test_GetPath_duration(self):
         start_time = timeit.default_timer()
@@ -61,12 +62,13 @@ class TestGetPath(unittest.TestCase):
         self.assertTrue(path is None)
 
     def test_node_abides_by_constraint(self):
+        print("test constraint +==========================")
         path = self.graph.GetPath(self.valid_point1, self.valid_point2, self.constraints)
         for i in range(len(path) - 1):
             pair = None
             if i < (len(path) - 2):
                 pair = (path[i].longLat, path[i+1].longLat)
-            self.assertFalse(pair in self.constraints)
+                self.assertFalse(pair in self.constraints)
 
 
 if __name__ == '__main__':

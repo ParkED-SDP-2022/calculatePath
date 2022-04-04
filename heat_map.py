@@ -6,14 +6,18 @@ time_resolution = 0.1  # fiddling with this value is encouraged
 # hello! long_lat is just going to be a tuple(float, float) for simplicitiy's sake.
 # I hope this doesn't feel too complicated :^)
 class HeatMapList:
+
+
     def __init__(self, number_of_benches):
+
+        poss = [(0.5,0.5,-999),(0.4641,1.1315,-999), (0.0933,0.3927,-999), (0.4943,0.0576,-999)]
 
         self.bench_dict = {}
         self.candidate_dict = {}
         self.occupy_list = []
 
         for i in range(number_of_benches):
-            self.bench_dict[i+1] = Bench(i+1, (-1,-1), 100, False)
+            self.bench_dict[i+1] = Bench(i+1, (poss[i][0],poss[i][1]), poss[i][2], False)
             self.candidate_dict[i+1] = None
 
     # method called when the bench status changes.
@@ -32,7 +36,7 @@ class HeatMapList:
                 self.bench_dict[bench_id].change_state(long_lat, battery, sit_down)
                 
     def change_loc(self, bench_id, long_lat):
-        self.bench_dict[bench_id].change_loc(long_lat)
+        self.bench_dict[bench_id].change_loc((long_lat.long, long_lat.lat))
 
     # returns a feature collection of points from the occupy list between a specified window
     def to_geojson_heatmap(self, start_time_window=datetime.datetime.min, end_time_window=datetime.datetime.max):

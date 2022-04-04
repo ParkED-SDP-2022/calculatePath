@@ -1,0 +1,8 @@
+prefix=/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/build/devel
+
+Name: calculatePath
+Description: Description of calculatePath
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

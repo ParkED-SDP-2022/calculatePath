@@ -7,20 +7,26 @@ from long_lat import LongLat
 class TestGetPath(unittest.TestCase):
 
     def setUp(self):
-        self.boundaries = Boundaries('sdp_space_map.geojson')
+        self.boundaries = Boundaries('/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_demo_space_from_camera.geojson')
         self.graph = Graph(self.boundaries)
 
-        self.valid_point1 = LongLat(-0.32958984375, 2.273573022378629)
-        self.valid_point2 = LongLat(-2.548828125, 2.833317196855306)
-        self.valid_point3 = LongLat(-0.59326171875, 3.392790869678844)
-        self.valid_point4 = LongLat(-0.72509765625, 0.4614207935306211)
+        self.valid_point1 = LongLat(0.53009033203125,
+          1.02167436848739)
+        self.valid_point2 = LongLat(0.28701782226562494,
+          0.4888856691231101)
+        self.valid_point3 = LongLat(0.745697021484375,
+          0.17990082744713973)
+        self.valid_point4 = LongLat(0.185394287109375,
+          0.9571393174703876)
 
-        self.point_in_obstacle = LongLat(-1.746826171875, 2.997898741103057)
-        self.point_out_of_bounds = LongLat(0.9667968749999999, 2.4162756547063857)
-        self.point_very_close_to_boundary = LongLat(-2.999922037124634, 3.4351588214774966)
+        self.point_in_obstacle = LongLat(0.416107177734375,
+          0.8060952321492764)
+        self.point_out_of_bounds = LongLat(0.65093994140625,
+          1.272936040103872)
+        self.point_very_close_to_boundary = LongLat(0.65643310546875,
+          0.832185094669236)
 
-        self.constraints = [(LongLat(-0.9000000000000004, 3.1000000000000005),
-                             LongLat(-0.9000000000000004, 2.8000000000000007))]
+        self.constraints = []
 
     def test_GetPath_duration(self):
         start_time = timeit.default_timer()

@@ -37,16 +37,22 @@ class Plan_Global_Path_Server(object):
             graph = Graph(G)
 
             
+            ##print("goal: ", goal.current_position.long, " current_pos: ", goal.current_po )
+            print("goaalll")
+            print(goal)
 
             current_pos = LongLat(goal.current_position.long, goal.current_position.lat)
             goal_pos = LongLat(goal.destination.long, goal.destination.lat)
-            constraints = self.input_constraints_to_lls(goal.constraints)
+            #constraints = self.input_constraints_to_lls(goal.constraints)
+            if (len(constraints) % 2 != 0):
+                print("WARNING CONSTRAINTS MUST BE PASSED IN GROUPS OF TWO. They represent an edge, not a node :^)")
 
-            # print(current_pos)
-            # print(goal_pos)
-            # print(constraints)
+            cons_list_of_Point = goal.constraints
+            constraint = self.points_to_edges(cons_list_of_Point)
+
+            print(constraint)
             
-            path = graph.GetPath(current_pos, goal_pos, constraints)
+            path = graph.GetPath(current_pos, goal_pos, constraint)
 
             ##############################################
 
@@ -89,13 +95,35 @@ class Plan_Global_Path_Server(object):
         else:
             self._as.set_aborted(self._result)
 
-    def input_constraints_to_lls(self, cs):
-        result = []
-        for c in cs:
-            l1 = LongLat(c[0].long, c[0].lat)
-            l2 = LongLat(c[1].long, c[1].lat)
-            result.append((l1, l2))
-        return result
+    def point_to_long_lat(self, point):
+        return LongLat(point.long, point.lat)
+
+    ## [Point] -> [tuple(LongLat)]
+    def points_to_edges(self, points):
+        edges = []
+        if len(points) == 0:
+            return edges
+        for i in range(len(points)-1):
+            node1 = self.point_to_long_lat(points[i])
+            node2 = self.point_to_long_lat(points[i+1])
+            edges.append((node1, node2))
+        return edges
+
+
+
+
+    # def input_constraints_to_lls(self, cs):
+    #     result = []
+
+    #     #l1 = LongLat(cs[0].long,cs[0].lat)
+    #     #l2 = LongLat(cs[1].long,cs[1].lat)
+
+    #     #return [(l1,l2)]
+    #     for c in cs:
+    #         l1 = LongLat(c.long, c.lat)
+    #         l2 = LongLat(c.long, c.lat)
+    #         result.append((l1, l2))
+    #     return result
     
     def path_to_point_list(self, path):
         point_list = []

@@ -198,8 +198,8 @@ class Graph:
         path = [] 
         currentNode = goal
         i = 0 
-        while not( not currentNode) and  i < 10:
-            print(currentNode.longLat)
+        while not( not currentNode) and  i < 1000: ####WARNING!!!!!! WE CHANGED THIS FROM (i < 10) because we didn't know what it did and we thought it might have been impeding the path.)
+            ##print(currentNode.longLat)
             path.insert(0, currentNode)
             currentNode = currentNode.parent
             i += 1

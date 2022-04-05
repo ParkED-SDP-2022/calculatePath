@@ -38,19 +38,21 @@ class Plan_Global_Path_Server(object):
 
             
             ##print("goal: ", goal.current_position.long, " current_pos: ", goal.current_po )
-            print("goaalll")
-            print(goal)
+            #print("goaalll")
+            #print(goal)
 
             current_pos = LongLat(goal.current_position.long, goal.current_position.lat)
             goal_pos = LongLat(goal.destination.long, goal.destination.lat)
             #constraints = self.input_constraints_to_lls(goal.constraints)
-            if (len(constraints) % 2 != 0):
+            if (len(goal.constraints) % 2 != 0):
                 print("WARNING CONSTRAINTS MUST BE PASSED IN GROUPS OF TWO. They represent an edge, not a node :^)")
 
             cons_list_of_Point = goal.constraints
             constraint = self.points_to_edges(cons_list_of_Point)
 
-            print(constraint)
+            print("\nconstraints ::")
+            for c in constraint:
+                print(str(c[0]), str(c[1]))
             
             path = graph.GetPath(current_pos, goal_pos, constraint)
 
@@ -69,8 +71,9 @@ class Plan_Global_Path_Server(object):
             # path = graph.GetPath(current_pos, goal_pos, constraints)
 
             ##############################################
-
-            print(path)
+            print("====================== actual path ==========================")
+            for node in path:
+                print(node.longLat)
             
             self._result.path = self.path_to_point_list(path)
 
@@ -79,12 +82,22 @@ class Plan_Global_Path_Server(object):
             plot_line_strings = []
             for i in range(len(path) - 1):
                 plot_line_strings.append(path[i].longLat.to_LineString(path[i + 1].longLat))
-            
+            i = 0
             for ls in plot_line_strings:
                 x,y = ls.xy
-                plt.plot(x,y, color="#ff7040", linewidth=2, solid_capstyle='round')
+                if i == 0:
+                    plt.plot(x,y, color="#00FF00", linewidth=2, solid_capstyle='round')
+                else:
+                    plt.plot(x,y, color="#ff7040", linewidth=2, solid_capstyle='round')
+                i += 1
+
+            if constraint:
+                for pair in constraint:
+                    midpoint = pair[0].midpoint(pair[1])
+                    plt.scatter(midpoint.long, midpoint.lat, marker='H', color='red', s=300)
 
             G.show_plot()
+            plt.clf()
 
         except Exception as ex: 
             print(ex)

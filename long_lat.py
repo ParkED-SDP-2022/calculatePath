@@ -3,8 +3,8 @@ from shapely.geometry import Point, LineString
 class LongLat:
 
     def __init__(self, long, lat):
-        self.long = long
-        self.lat = lat
+        self.long = round(long, 4)
+        self.lat = round(lat, 4)
 
     def distance(self, longLat):
         x1 = self.long

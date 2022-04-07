@@ -57,15 +57,21 @@ class Boundaries:
 
 
     def get_buffer_geojson_string(self):
-        # list of polygon objects from the buffer
-        list_of_buffer_features = []
-        # first get the boundary
-        list_of_buffer_features.append(geojson.Feature(geometry=mapping(self.boundary_buffer)))
+        inners = []
         for poly in self.obstacle_buffer.geoms:
-            # then add each poly in the obstacle multipolygon
-            list_of_buffer_features.append(geojson.Feature(geometry=mapping(poly)))
-        buffer_fcollection = geojson.FeatureCollection(list_of_buffer_features)
-        return str(buffer_fcollection)
+            inners.append(poly)
+        outer = self.boundary_buffer
+        valid_zone = Polygon(outer.exterior.coords, [inner.exterior.coords for inner in inners])
+        valid_zone_feature = geojson.Feature(geometry=mapping(valid_zone))
+        valid_zone_fcollection = geojson.FeatureCollection([valid_zone_feature])
+
+        # # first get the boundary
+        # list_of_buffer_features.append(geojson.Feature(geometry=mapping(self.boundary_buffer)))
+        # for poly in self.obstacle_buffer.geoms:
+        #     # then add each poly in the obstacle multipolygon
+        #     list_of_buffer_features.append(geojson.Feature(geometry=mapping(poly)))
+        # buffer_fcollection = geojson.FeatureCollection(list_of_buffer_features)
+        return str(valid_zone_fcollection)
 
 
 

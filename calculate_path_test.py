@@ -7,7 +7,7 @@ from long_lat import LongLat
 class TestGetPath(unittest.TestCase):
 
     def setUp(self):
-        self.boundaries = Boundaries('/afs/inf.ed.ac.uk/user/s18/s1829279/Desktop/sdp/catkin_ws/src/calculatePath/sdp_demo_space_from_camera_2.geojson')
+        self.boundaries = Boundaries('/afs/inf.ed.ac.uk/user/s18/s1849475/Documents/sdp/calc_path/calculatePath/sdp_demo_space_from_camera_2.geojson')
         self.graph = Graph(self.boundaries)
 
         self.valid_point1 = LongLat(0.53009033203125,

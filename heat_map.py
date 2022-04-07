@@ -1,5 +1,5 @@
 import datetime
-from geojson import Point, Feature, FeatureCollection
+from geojson import Point, Polygon, Feature, FeatureCollection
 import math
 time_resolution = 0.1  # fiddling with this value is encouraged
 

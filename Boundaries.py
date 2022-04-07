@@ -1,5 +1,6 @@
 import json
-from shapely.geometry import Point, Polygon, LineString, shape, MultiPolygon
+import geojson
+from shapely.geometry import Point, Polygon, LineString, shape, MultiPolygon, mapping
 import copy
 from long_lat import LongLat
 from typing import List
@@ -49,6 +50,23 @@ class Boundaries:
         self.plot_polygons(self.obstacle_buffer, self.buffer_color, 'dashed')
 
         self.grid = self.generate_grid()
+        # creates geojson file of the buffer zones
+        with open('buffer_zone_FeatureCollection.txt', 'w') as f:
+            f.write(self.get_buffer_geojson_string())
+
+
+
+    def get_buffer_geojson_string(self):
+        # list of polygon objects from the buffer
+        list_of_buffer_features = []
+        # first get the boundary
+        list_of_buffer_features.append(geojson.Feature(geometry=mapping(self.boundary_buffer)))
+        for poly in self.obstacle_buffer.geoms:
+            # then add each poly in the obstacle multipolygon
+            list_of_buffer_features.append(geojson.Feature(geometry=mapping(poly)))
+        buffer_fcollection = geojson.FeatureCollection(list_of_buffer_features)
+        return str(buffer_fcollection)
+
 
 
     def plot_polygons(self, polygons, color, linestyle):
